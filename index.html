@@ -403,8 +403,7 @@
     <div class="section-title">Support</div>
     <div class="donate-banner">
       <p>Donations keep the server running and help fund new heroes, models, and content.<br>VIP perks available for contributors.</p>
-      <audio id="donate-sound" src="technosong.mp3"></audio>
-      <a class="donate-img-btn" href="https://www.paypal.com/donate?hosted_button_id=9JNPXVVSUPSHY" target="_blank" onclick="document.getElementById('donate-sound').play()"><img src="paypalbutton.webp" alt="Donate via PayPal"></a>
+      <a class="donate-img-btn" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9JNPXVVSUPSHY" target="_blank"><img src="paypalbutton.webp" alt="Donate via PayPal"></a>
     </div>
   </section>
 
@@ -513,5 +512,13 @@
   &copy; OGz C-Strike Gangstaz &nbsp;|&nbsp; CS2 Superhero Mod &nbsp;|&nbsp; If you can help with the server, workshop tools, or models — message the owner on Discord
 </footer>
 
+<audio id="bg-music" src="technosong.mp3" loop></audio>
+<script>
+  var music = document.getElementById('bg-music');
+  var played = false;
+  document.addEventListener('click', function() {
+    if (!played) { music.play(); played = true; }
+  }, { once: true });
+</script>
 </body>
 </html>
