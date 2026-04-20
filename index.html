@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGz C-Strike Gangstaz | CS2 Superhero Mod</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    background: #0d0d0d;
+    color: #e0e0e0;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(180deg, #0a0a0a 0%, #111 100%);
+    border-bottom: 3px solid #1e90ff;
+    text-align: center;
+    padding: 48px 20px 36px;
+  }
+  header h1 {
+    font-size: 3rem;
+    letter-spacing: 4px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+  header h2 {
+    font-size: 1.1rem;
+    letter-spacing: 6px;
+    color: #1e90ff;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* NAV */
+  nav {
+    background: #161616;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    transition: color 0.2s, border-bottom 0.2s;
+    border-bottom: 3px solid transparent;
+  }
+  nav a:hover {
+    color: #1e90ff;
+    border-bottom: 3px solid #1e90ff;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 0.75rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #1e90ff;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  /* SERVER INFO CARDS */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .info-card {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-top: 3px solid #1e90ff;
+    padding: 24px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(30,144,255,0.15);
+  }
+  .info-card .label {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #777;
+    margin-bottom: 8px;
+  }
+  .info-card .value {
+    font-size: 1rem;
+    color: #fff;
+  }
+  .info-card .value a {
+    color: #1e90ff;
+    text-decoration: none;
+  }
+  .info-card .value a:hover { text-decoration: underline; }
+
+  /* DONATE BANNER */
+  .donate-banner {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-left: 4px solid #1e90ff;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .donate-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(30,144,255,0.15);
+  }
+  .donate-banner p {
+    font-size: 0.85rem;
+    color: #bbb;
+    max-width: 680px;
+  }
+  .donate-btn {
+    background: #1e90ff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .donate-btn:hover { background: #4da6ff; }
+
+  /* RULES */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .rule-item {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    padding: 14px 18px;
+    font-size: 0.85rem;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .rule-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(30,144,255,0.15);
+  }
+  .rule-item::before {
+    content: "✕";
+    color: #1e90ff;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  /* HERO LIST */
+  .hero-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .hero-table thead tr {
+    background: #1a1a1a;
+    border-bottom: 2px solid #1e90ff;
+  }
+  .hero-table thead th {
+    padding: 12px 16px;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #1e90ff;
+    text-align: left;
+  }
+  .hero-table tbody tr {
+    border-bottom: 1px solid #1e1e1e;
+    transition: background 0.15s;
+  }
+  .hero-table tbody tr:hover { background: #181818; }
+  .hero-table tbody td {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+  .hero-table .td-level {
+    color: #1e90ff;
+    width: 70px;
+    font-size: 0.9rem;
+  }
+  .hero-table .td-name { color: #fff; width: 200px; }
+  .hero-table .td-desc { color: #888; }
+
+  /* LOGOS */
+  .logo-img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 16px rgba(30,144,255,0.35));
+    transition: transform 0.2s, filter 0.2s;
+  }
+  .logo-img:hover {
+    transform: translateY(-3px);
+    filter: drop-shadow(0 0 24px rgba(30,144,255,0.6));
+  }
+
+  /* HOOK HEADLINE */
+  .hook {
+    text-align: center;
+    margin-bottom: -8px;
+  }
+  .hook h3 {
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+  .hook h3 span {
+    color: #1e90ff;
+  }
+  .hook p {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #888;
+    letter-spacing: 1px;
+    font-weight: normal;
+  }
+
+  /* HOW IT WORKS */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .step {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-top: 3px solid #1e90ff;
+    padding: 28px 24px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .step:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(30,144,255,0.15);
+  }
+  .step-num {
+    font-size: 2rem;
+    color: #1e90ff;
+    margin-bottom: 10px;
+  }
+  .step-title {
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .step-desc {
+    font-size: 0.8rem;
+    color: #777;
+    font-weight: normal;
+    line-height: 1.6;
+  }
+
+  /* DONATE IMG BUTTON */
+  .donate-img-btn {
+    display: block;
+    transition: transform 0.2s, filter 0.2s;
+    flex-shrink: 0;
+  }
+  .donate-img-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1) drop-shadow(0 4px 12px rgba(30,144,255,0.4));
+  }
+  .donate-img-btn img {
+    height: 52px;
+    width: auto;
+    display: block;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #0a0a0a;
+    border-top: 1px solid #1e1e1e;
+    text-align: center;
+    padding: 28px 20px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: #444;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.8rem; }
+    .hero-table .td-desc { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>OGz C-Strike Gangstaz</h1>
+  <h2>CS2 Superhero Mod</h2>
+</header>
+
+<nav>
+  <a href="#info">Server Info</a>
+  <a href="#howitworks">How It Works</a>
+  <a href="#rules">Rules</a>
+  <a href="#heroes">Heroes</a>
+  <a href="#donate">Donate</a>
+</nav>
+
+<main>
+
+  <!-- LOGOS -->
+  <div style="display: flex; justify-content: center; align-items: center; gap: 48px; margin-bottom: -16px;">
+    <img src="cstrikegangstaz.png" alt="OGz C-Strike Gangstaz" class="logo-img">
+    <img src="superherologo.png" alt="Superhero Mod" class="logo-img">
+  </div>
+
+  <!-- HOOK -->
+  <div class="hook">
+    <h3><span>68 unique superpowers.</span> One server.</h3>
+    <p>What you loved in CS 1.6... reborn in Counter-Strike 2.</p>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="howitworks">
+    <div class="section-title">How It Works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Join The Server</div>
+        <div class="step-desc">Connect with the server IP and drop straight into the action.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Earn XP & Level Up</div>
+        <div class="step-desc">Get kills, win rounds, and rack up XP every match.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Unlock Your Hero</div>
+        <div class="step-desc">Equip heroes as you level up. Stack abilities, find your playstyle, and dominate.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVER INFO -->
+  <section id="info">
+    <div class="section-title">Server Info</div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Server IP</div>
+        <div class="value">coming soon</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Discord</div>
+        <div class="value"><a href="https://discord.gg/EEmXpJ4bU2" target="_blank">discord.gg/EEmXpJ4bU2</a></div>
+      </div>
+      <div class="info-card">
+        <div class="label">Report Bugs</div>
+        <div class="value">Type /bug in-game</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Help</div>
+        <div class="value">Type /help in-game</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONATE -->
+  <section id="donate">
+    <div class="section-title">Support</div>
+    <div class="donate-banner">
+      <p>Donations keep the server running and help fund new heroes, models, and content.<br>VIP perks available for contributors.</p>
+      <a class="donate-img-btn" href="#" target="_blank"><img src="paypalbutton.webp" alt="Donate via PayPal"></a>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <div class="section-title">Rules</div>
+    <div class="rules-grid">
+      <div class="rule-item">No Hacking</div>
+      <div class="rule-item">No Bug Exploits</div>
+      <div class="rule-item">No Imitating Admins</div>
+      <div class="rule-item">No Posting Links</div>
+      <div class="rule-item">No Boosting</div>
+      <div class="rule-item">No Spam</div>
+      <div class="rule-item">No Disrespecting Admins</div>
+      <div class="rule-item">No Whining</div>
+    </div>
+  </section>
+
+  <!-- HEROES -->
+  <section id="heroes">
+    <div class="section-title">Hero Roster — 68 Heroes</div>
+    <table class="hero-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Hero</th>
+          <th>Ability</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="td-level">1</td><td class="td-name">Noob</td><td class="td-desc">Golden Deagle</td></tr>
+        <tr><td class="td-level">2</td><td class="td-name">Cola Lover</td><td class="td-desc">Cola Bangs</td></tr>
+        <tr><td class="td-level">3</td><td class="td-name">Moonman</td><td class="td-desc">Low Gravity</td></tr>
+        <tr><td class="td-level">4</td><td class="td-name">AWP Whore</td><td class="td-desc">Golden AWP</td></tr>
+        <tr><td class="td-level">5</td><td class="td-name">Bunny</td><td class="td-desc">BHop</td></tr>
+        <tr><td class="td-level">6</td><td class="td-name">Iron Man</td><td class="td-desc">Jetpack</td></tr>
+        <tr><td class="td-level">7</td><td class="td-name">Rapid Fire</td><td class="td-desc">Shoot Bullets Quickly</td></tr>
+        <tr><td class="td-level">8</td><td class="td-name">Casper</td><td class="td-desc">Noclip Ability</td></tr>
+        <tr><td class="td-level">9</td><td class="td-name">Glock Master</td><td class="td-desc">Master Of The Glocks (Need Dual Wield Model)</td></tr>
+        <tr><td class="td-level">10</td><td class="td-name">Catwoman</td><td class="td-desc">Enemy Disguise Spawn</td></tr>
+        <tr><td class="td-level">11</td><td class="td-name">Copperhead</td><td class="td-desc">Gamble XP</td></tr>
+        <tr><td class="td-level">12</td><td class="td-name">Nightcrawler</td><td class="td-desc">Trade Places With Nearest Enemy</td></tr>
+        <tr><td class="td-level">13</td><td class="td-name">The Tick</td><td class="td-desc">No Fall Damage</td></tr>
+        <tr><td class="td-level">14</td><td class="td-name">Captain America</td><td class="td-desc">Random Godmode</td></tr>
+        <tr><td class="td-level">15</td><td class="td-name">Human Torch</td><td class="td-desc">Flamethrower</td></tr>
+        <tr><td class="td-level">16</td><td class="td-name">Daredevil</td><td class="td-desc">ESP</td></tr>
+        <tr><td class="td-level">17</td><td class="td-name">Ninja</td><td class="td-desc">No Footsteps</td></tr>
+        <tr><td class="td-level">18</td><td class="td-name">Chucky</td><td class="td-desc">Knife Hero, Chance of Revive</td></tr>
+        <tr><td class="td-level">19</td><td class="td-name">Flash</td><td class="td-desc">Super Speed</td></tr>
+        <tr><td class="td-level">20</td><td class="td-name">Bat Team</td><td class="td-desc">Hook</td></tr>
+        <tr><td class="td-level">21</td><td class="td-name">Madness M3</td><td class="td-desc">Nova (Need Madness M3 Model)</td></tr>
+        <tr><td class="td-level">22</td><td class="td-name">Resurrector</td><td class="td-desc">Revive Fallen Teammates</td></tr>
+        <tr><td class="td-level">23</td><td class="td-name">Cypher</td><td class="td-desc">Reveal All Enemies Ability</td></tr>
+        <tr><td class="td-level">24</td><td class="td-name">Domino</td><td class="td-desc">Higher Damage Against Higher Levels</td></tr>
+        <tr><td class="td-level">25</td><td class="td-name">The Hulk</td><td class="td-desc">Disable Enemy Powers</td></tr>
+        <tr><td class="td-level">26</td><td class="td-name">Invisible Man</td><td class="td-desc">Reoccurring Invisibility</td></tr>
+        <tr><td class="td-level">27</td><td class="td-name">James Bond</td><td class="td-desc">(Golden Gun Model Needed)</td></tr>
+        <tr><td class="td-level">28</td><td class="td-name">Batman</td><td class="td-desc">Defuse Kit, Faster Defuse Time</td></tr>
+        <tr><td class="td-level">29</td><td class="td-name">Shang-Chi</td><td class="td-desc">Deflect Knife Damage</td></tr>
+        <tr><td class="td-level">30</td><td class="td-name">Blink</td><td class="td-desc">Instant Teleport</td></tr>
+        <tr><td class="td-level">31</td><td class="td-name">Vash the Stampede</td><td class="td-desc">Revolver (Need Model)</td></tr>
+        <tr><td class="td-level">32</td><td class="td-name">Agent Zero</td><td class="td-desc">No Recoil</td></tr>
+        <tr><td class="td-level">33</td><td class="td-name">Dirty Harry</td><td class="td-desc">Revolver With Knockback (Need Model)</td></tr>
+        <tr><td class="td-level">34</td><td class="td-name">Dracula</td><td class="td-desc">Drain Enemy HP</td></tr>
+        <tr><td class="td-level">35</td><td class="td-name">Luke Skywalker</td><td class="td-desc">Lightsaber</td></tr>
+        <tr><td class="td-level">36</td><td class="td-name">Darth Maul</td><td class="td-desc">Lightsaber</td></tr>
+        <tr><td class="td-level">37</td><td class="td-name">Riddick</td><td class="td-desc">Knife Hero (Need Model)</td></tr>
+        <tr><td class="td-level">38</td><td class="td-name">US Marine</td><td class="td-desc">Kitted Up, M4A1</td></tr>
+        <tr><td class="td-level">39</td><td class="td-name">1337 Hax0r</td><td class="td-desc">Random Hacks</td></tr>
+        <tr><td class="td-level">40</td><td class="td-name">Hobgoblin</td><td class="td-desc">HE Grenade Replenish</td></tr>
+        <tr><td class="td-level">41</td><td class="td-name">Master Chief</td><td class="td-desc">P90 (Need Gun Model)</td></tr>
+        <tr><td class="td-level">42</td><td class="td-name">Morpheus</td><td class="td-desc">MP5 (Need Dual MP5 Model)</td></tr>
+        <tr><td class="td-level">43</td><td class="td-name">Punisher</td><td class="td-desc">Unlimited Ammo</td></tr>
+        <tr><td class="td-level">44</td><td class="td-name">Green Arrow</td><td class="td-desc">Scout (Need Explosive Bullets)</td></tr>
+        <tr><td class="td-level">45</td><td class="td-name">Spas-12</td><td class="td-desc"></td></tr>
+        <tr><td class="td-level">46</td><td class="td-name">FPS Doug</td><td class="td-desc">Boom Headshot!</td></tr>
+        <tr><td class="td-level">47</td><td class="td-name">Invisible Woman</td><td class="td-desc">Invisibility Ability</td></tr>
+        <tr><td class="td-level">48</td><td class="td-name">Penguin</td><td class="td-desc">Enemy Seeking Penguins</td></tr>
+        <tr><td class="td-level">49</td><td class="td-name">Pimp</td><td class="td-desc">Dualies, M249 (Need Models)</td></tr>
+        <tr><td class="td-level">50</td><td class="td-name">Sandman</td><td class="td-desc">Slow Enemys Down</td></tr>
+        <tr><td class="td-level">51</td><td class="td-name">Yoda</td><td class="td-desc">Gravity Push</td></tr>
+        <tr><td class="td-level">52</td><td class="td-name">Blood Angel</td><td class="td-desc">Bloody AK (Need Model Installed)</td></tr>
+        <tr><td class="td-level">53</td><td class="td-name">Commando</td><td class="td-desc">Golden M4A1</td></tr>
+        <tr><td class="td-level">54</td><td class="td-name">Scorpion</td><td class="td-desc">Drag Enemies To You</td></tr>
+        <tr><td class="td-level">55</td><td class="td-name">Frogger</td><td class="td-desc">Double Jump</td></tr>
+        <tr><td class="td-level">56</td><td class="td-name">Veronika</td><td class="td-desc">AK47 (Need Model, Uses Golden AK)</td></tr>
+        <tr><td class="td-level">57</td><td class="td-name">MacDaddy</td><td class="td-desc">Mac 10 (Need Dual Mac 10 Model)</td></tr>
+        <tr><td class="td-level">58</td><td class="td-name">Kamikaze</td><td class="td-desc">Become A Martyr</td></tr>
+        <tr><td class="td-level">59</td><td class="td-name">Gambit</td><td class="td-desc">Increased HE Grenade Damage</td></tr>
+        <tr><td class="td-level">60</td><td class="td-name">Mad Assassin</td><td class="td-desc"></td></tr>
+        <tr><td class="td-level">61</td><td class="td-name">Scream</td><td class="td-desc">Knife Hero</td></tr>
+        <tr><td class="td-level">62</td><td class="td-name">Supergirl</td><td class="td-desc">Fly</td></tr>
+        <tr><td class="td-level">63</td><td class="td-name">Darth Vader</td><td class="td-desc">Telekinesis Grab</td></tr>
+        <tr><td class="td-level">64</td><td class="td-name">Phoenix</td><td class="td-desc">Rebirth</td></tr>
+        <tr><td class="td-level">65</td><td class="td-name">Rambo</td><td class="td-desc">Rambo Kit</td></tr>
+        <tr><td class="td-level">66</td><td class="td-name">T-800</td><td class="td-desc">Terminator Mode</td></tr>
+        <tr><td class="td-level">67</td><td class="td-name">Goku</td><td class="td-desc">Kamehameha</td></tr>
+        <tr><td class="td-level">68</td><td class="td-name">Neo Reloaded</td><td class="td-desc">Matrix Mode</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  &copy; OGz C-Strike Gangstaz &nbsp;|&nbsp; CS2 Superhero Mod &nbsp;|&nbsp; If you can help with the server, workshop tools, or models — message the owner on Discord
+</footer>
+
+</body>
+</html>
