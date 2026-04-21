@@ -383,6 +383,35 @@
     text-transform: uppercase;
   }
 
+  /* MUSIC TOGGLE */
+  .music-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    transition: box-shadow 0.2s, transform 0.2s;
+    font-size: 1.3rem;
+    color: #1e90ff;
+    box-shadow: 0 0 12px rgba(30,144,255,0.25);
+  }
+  .music-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(30,144,255,0.5);
+  }
+  .music-toggle.muted {
+    color: #444;
+    box-shadow: none;
+  }
+
   @media (max-width: 600px) {
     header h1 { font-size: 1.8rem; }
     .hero-table .td-desc { display: none; }
@@ -593,12 +622,36 @@
 </footer>
 
 <audio id="bg-music" src="technosong.mp3" loop></audio>
+<button class="music-toggle" id="music-btn" title="Toggle music">♪</button>
 <script>
   var music = document.getElementById('bg-music');
-  var played = false;
-  document.addEventListener('click', function() {
-    if (!played) { music.play(); played = true; }
+  var btn = document.getElementById('music-btn');
+  var started = false;
+
+  function startMusic() {
+    music.play();
+    started = true;
+    btn.textContent = '♪';
+    btn.classList.remove('muted');
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!started && e.target !== btn) { startMusic(); }
   }, { once: true });
+
+  btn.addEventListener('click', function() {
+    if (!started) {
+      startMusic();
+    } else if (music.paused) {
+      music.play();
+      btn.textContent = '♪';
+      btn.classList.remove('muted');
+    } else {
+      music.pause();
+      btn.textContent = '♪';
+      btn.classList.add('muted');
+    }
+  });
 </script>
 </body>
 </html>
