@@ -359,20 +359,17 @@
     border-color: #1e90ff;
   }
   .donate-submit-btn {
-    background: #1e90ff;
-    color: #000;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 8px 20px;
+    background: none;
     border: none;
+    padding: 0;
     cursor: pointer;
-    transition: background 0.2s;
     align-self: flex-end;
+    transition: transform 0.2s, filter 0.2s;
   }
-  .donate-submit-btn:hover { background: #4da6ff; }
+  .donate-submit-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1) drop-shadow(0 4px 10px rgba(30,144,255,0.4));
+  }
 
   /* FOOTER */
   footer {
@@ -482,8 +479,8 @@
             <input type="hidden" name="currency_code" value="USD" />
             <input type="hidden" name="on0" value="Player Name &amp; SteamID" />
             <label>Player Name &amp; SteamID</label>
-            <input type="text" name="os0" maxlength="200" placeholder="e.g. OGz_Casper / STEAM_0:1:12345" />
-            <button type="submit" class="donate-submit-btn">Proceed to PayPal</button>
+            <input type="text" name="os0" maxlength="200" />
+            <button type="submit" class="donate-submit-btn"><img src="donate.png" alt="Donate" style="height:40px;width:auto;display:block;"></button>
           </form>
         </div>
       </div>
