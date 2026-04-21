@@ -295,6 +295,10 @@
     display: block;
     transition: transform 0.2s, filter 0.2s;
     flex-shrink: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
   }
   .donate-img-btn:hover {
     transform: translateY(-2px);
@@ -305,6 +309,70 @@
     width: auto;
     display: block;
   }
+
+  /* DONATE DROPDOWN FORM */
+  .donate-form-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .donate-dropdown {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+    opacity: 0;
+    width: 100%;
+  }
+  .donate-dropdown.open {
+    max-height: 160px;
+    opacity: 1;
+  }
+  .donate-dropdown-inner {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-top: none;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .donate-dropdown-inner label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #777;
+  }
+  .donate-dropdown-inner input[type="text"] {
+    background: #111;
+    border: 1px solid #333;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .donate-dropdown-inner input[type="text"]:focus {
+    border-color: #1e90ff;
+  }
+  .donate-submit-btn {
+    background: #1e90ff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-end;
+  }
+  .donate-submit-btn:hover { background: #4da6ff; }
 
   /* FOOTER */
   footer {
@@ -403,7 +471,22 @@
     <div class="section-title">Support</div>
     <div class="donate-banner">
       <p>Donations keep the server running and help fund new heroes, models, and content.<br>VIP perks available for contributors.</p>
-      <a class="donate-img-btn" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9JNPXVVSUPSHY" target="_blank"><img src="paypalbutton.webp" alt="Donate via PayPal"></a>
+      <div class="donate-form-wrap">
+        <button class="donate-img-btn" onclick="var d=document.getElementById('donate-drop');d.classList.toggle('open');" type="button">
+          <img src="paypalbutton.webp" alt="Donate via PayPal">
+        </button>
+        <div class="donate-dropdown" id="donate-drop">
+          <form class="donate-dropdown-inner" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick" />
+            <input type="hidden" name="hosted_button_id" value="57DWBML2MP5Y4" />
+            <input type="hidden" name="currency_code" value="USD" />
+            <input type="hidden" name="on0" value="Player Name &amp; SteamID" />
+            <label>Player Name &amp; SteamID</label>
+            <input type="text" name="os0" maxlength="200" placeholder="e.g. OGz_Casper / STEAM_0:1:12345" />
+            <button type="submit" class="donate-submit-btn">Proceed to PayPal</button>
+          </form>
+        </div>
+      </div>
     </div>
   </section>
 
