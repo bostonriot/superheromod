@@ -65,7 +65,8 @@
   .login-to-post:hover { color: #1e90ff; }
 
   /* THREAD LIST */
-  .thread-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 12px 18px; display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; transition: background 0.15s; gap: 16px; }
+  .thread-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.15s; gap: 12px; }
+  .thread-avatar { width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated; flex-shrink: 0; }
   .thread-item:hover { background: #1c1c1c; }
   .thread-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
   .thread-title-text { font-size: 0.88rem; color: #fff; text-align: left; }
@@ -370,17 +371,23 @@
         el.innerHTML = `<div class="threads-empty">No threads yet.</div>`;
         return;
       }
-      el.innerHTML = filtered.map(t => `
-        <div class="thread-item" onclick="openThread('${esc(t.id)}')">
-          <div class="thread-left">
-            <div class="thread-title-text">${esc(t.title)}</div>
-            <div class="thread-meta">by <b>${esc(t.authorName || "Unknown")}</b>${t.authorName === "LOOTENANT BIG POOPIE" ? ' <span style="color:#ff3333;letter-spacing:1px;">· OWNER</span>' : ""}</div>
-          </div>
-          <div class="thread-right">
-            <span class="thread-reply-count">${t.replyCount || 0} ${t.replyCount === 1 ? "reply" : "replies"}</span>
-            <span class="thread-time">${timeAgo(t.createdAt)}</span>
-          </div>
-        </div>`).join("");
+      el.innerHTML = filtered.map(t => {
+        const av = resolveAvatar(t.authorName, t.authorAvatar);
+        const ownerTag = t.authorName === "LOOTENANT BIG POOPIE"
+          ? ' <span style="color:#ff3333;letter-spacing:1px;">· OWNER</span>' : "";
+        return `
+          <div class="thread-item" onclick="openThread('${esc(t.id)}')">
+            <img class="thread-avatar" src="${esc(av)}" alt="">
+            <div class="thread-left">
+              <div class="thread-title-text">${esc(t.title)}</div>
+              <div class="thread-meta">by <b>${esc(t.authorName || "Unknown")}</b>${ownerTag}</div>
+            </div>
+            <div class="thread-right">
+              <span class="thread-reply-count">${t.replyCount || 0} ${t.replyCount === 1 ? "reply" : "replies"}</span>
+              <span class="thread-time">${timeAgo(t.createdAt)}</span>
+            </div>
+          </div>`;
+      }).join("");
     });
   }
 

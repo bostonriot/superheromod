@@ -253,44 +253,8 @@
     font-weight: normal;
   }
 
-  /* HOW IT WORKS */
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-  }
-  .step {
-    background: #161616;
-    border: 1px solid #2a2a2a;
-    border-top: 3px solid #1e90ff;
-    padding: 28px 24px;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .step:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(30,144,255,0.15);
-  }
-  .step-num {
-    font-size: 2rem;
-    color: #1e90ff;
-    margin-bottom: 10px;
-  }
-  .step-title {
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #fff;
-    margin-bottom: 8px;
-  }
-  .step-desc {
-    font-size: 0.8rem;
-    color: #777;
-    font-weight: normal;
-    line-height: 1.6;
-  }
 
-  /* DONATE IMG BUTTON */
+/* DONATE IMG BUTTON */
   .donate-img-btn {
     display: block;
     transition: transform 0.2s, filter 0.2s;
@@ -527,8 +491,7 @@
 
 <nav>
   <a href="#info">Server Info</a>
-  <a href="#howitworks">How It Works</a>
-  <a href="#rules">Rules</a>
+<a href="#rules">Rules</a>
   <a href="#heroes">Heroes</a>
   <a href="#donate">Donate</a>
   <a href="#guestbook">Chat</a>
@@ -549,29 +512,7 @@
     <p>What you loved in CS 1.6... reborn in Counter-Strike 2.</p>
   </div>
 
-  <!-- HOW IT WORKS -->
-  <section id="howitworks">
-    <div class="section-title">How It Works</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-title">Join The Server</div>
-        <div class="step-desc">Connect with the server IP and drop straight into the action.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-title">Earn XP & Level Up</div>
-        <div class="step-desc">Get kills, win rounds, and rack up XP every match.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-title">Unlock Your Hero</div>
-        <div class="step-desc">Equip heroes as you level up. Stack abilities, find your playstyle, and dominate.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SERVER INFO -->
+<!-- SERVER INFO -->
   <section id="info">
     <div class="section-title">Server Info</div>
     <div class="info-grid">
