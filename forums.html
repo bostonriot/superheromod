@@ -109,6 +109,19 @@
   .post-date { font-size: 0.65rem; color: #3a3a3a; font-weight: normal; letter-spacing: 1px; }
   .post-body { font-size: 0.85rem; color: #ccc; font-weight: normal; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
 
+  /* FORMAT TOOLBAR */
+  .fmt-wrap { border: 1px solid #333; transition: border-color 0.2s; }
+  .fmt-wrap:focus-within { border-color: #1e90ff; }
+  .fmt-editor { background: #111; color: #fff; font-family: Arial, sans-serif; font-size: 0.85rem; font-weight: normal; padding: 10px 14px; outline: none; min-height: 120px; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
+  .fmt-editor-tall { min-height: 140px; }
+  .fmt-editor:empty:before { content: attr(data-placeholder); color: #444; pointer-events: none; }
+  .fmt-bar { display: flex; align-items: center; gap: 2px; background: #0f0f0f; border-top: 1px solid #222; padding: 5px 8px; flex-wrap: wrap; }
+  .fmt-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #bbb; font-family: Arial, sans-serif; font-size: 0.8rem; padding: 3px 9px; cursor: pointer; transition: background 0.15s, color 0.15s; line-height: 1.4; }
+  .fmt-btn:hover { background: #2a2a2a; color: #fff; }
+  .fmt-sep { width: 1px; height: 18px; background: #2a2a2a; margin: 0 5px; flex-shrink: 0; }
+  .fmt-emoji { background: none; border: none; font-size: 1.05rem; cursor: pointer; padding: 2px 3px; border-radius: 3px; transition: background 0.15s; line-height: 1; }
+  .fmt-emoji:hover { background: #2a2a2a; }
+
   /* REPLY FORM */
   .reply-form { background: #161616; border: 1px solid #2a2a2a; border-top: none; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
   .login-to-reply { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 16px 18px; font-size: 0.75rem; color: #444; text-align: left; letter-spacing: 1px; text-transform: uppercase; font-weight: normal; }
@@ -267,6 +280,52 @@
     document.getElementById("av-t").classList.toggle("selected",  file === "t.png");
   };
 
+  // ── Formatting ────────────────────────────────────────────────────────────
+
+  const EMOJIS = ['😊','😄','😂','😢','😡','😈','😎','😛','😉','👍','💀','🔥','🤔','😱','🎉'];
+
+  function formatBar() {
+    return `<div class="fmt-bar">
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('bold')" title="Bold"><b>B</b></button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('italic')" title="Italic"><i>I</i></button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('underline')" title="Underline"><u>U</u></button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('strikeThrough')" title="Strikethrough"><s>S</s></button>
+      <span class="fmt-sep"></span>
+      ${EMOJIS.map(e => `<button type="button" class="fmt-emoji" onmousedown="event.preventDefault();document.execCommand('insertText',false,'${e}')">${e}</button>`).join('')}
+    </div>`;
+  }
+
+  function sanitizeHTML(html) {
+    const ALLOWED = new Set(['b','strong','i','em','u','s','strike','span','br','div','p']);
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    function clean(el) {
+      [...el.childNodes].forEach(node => {
+        if (node.nodeType === 3) return;
+        if (node.nodeType !== 1) { node.remove(); return; }
+        const tag = node.tagName.toLowerCase();
+        if (!ALLOWED.has(tag)) {
+          while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
+          node.remove();
+          return;
+        }
+        [...node.attributes].forEach(a => { if (a.name !== 'style') node.removeAttribute(a.name); });
+        if (node.hasAttribute('style')) {
+          const safe = {};
+          ['font-weight','font-style','text-decoration'].forEach(p => {
+            const v = node.style.getPropertyValue(p);
+            if (v) safe[p] = v;
+          });
+          node.removeAttribute('style');
+          Object.entries(safe).forEach(([k, v]) => node.style.setProperty(k, v));
+        }
+        clean(node);
+      });
+    }
+    clean(tmp);
+    return tmp.innerHTML;
+  }
+
   // ── Auth modal ────────────────────────────────────────────────────────────
 
   window.showModal    = function() { document.getElementById("auth-modal").classList.remove("hidden"); };
@@ -414,7 +473,10 @@
     form.id = `ntf-${sid}`;
     form.innerHTML = `
       <input class="form-input" type="text" id="nt-title-${sid}" placeholder="Thread title" maxlength="120">
-      <textarea class="form-input" id="nt-body-${sid}" placeholder="Write your post..."></textarea>
+      <div class="fmt-wrap">
+        <div contenteditable="true" class="fmt-editor fmt-editor-tall" id="nt-body-${sid}" data-placeholder="Write your post..."></div>
+        ${formatBar()}
+      </div>
       <div class="form-error" id="nt-err-${sid}"></div>
       <div class="form-row">
         <button class="cancel-btn" onclick="cancelNewThread('${esc(sid)}')">Cancel</button>
@@ -429,13 +491,14 @@
   };
 
   window.submitThread = async function(cat, sid) {
-    const title = document.getElementById(`nt-title-${sid}`).value.trim();
-    const body  = document.getElementById(`nt-body-${sid}`).value.trim();
-    const errEl = document.getElementById(`nt-err-${sid}`);
-    const btn   = document.getElementById(`nt-sub-${sid}`);
+    const title  = document.getElementById(`nt-title-${sid}`).value.trim();
+    const bodyEl = document.getElementById(`nt-body-${sid}`);
+    const body   = sanitizeHTML(bodyEl.innerHTML);
+    const errEl  = document.getElementById(`nt-err-${sid}`);
+    const btn    = document.getElementById(`nt-sub-${sid}`);
     errEl.textContent = "";
-    if (!title) { errEl.textContent = "Title is required.";      return; }
-    if (!body)  { errEl.textContent = "Post body is required.";  return; }
+    if (!title)                     { errEl.textContent = "Title is required.";     return; }
+    if (!bodyEl.textContent.trim()) { errEl.textContent = "Post body is required."; return; }
     btn.disabled = true;
     try {
       const ref = await addDoc(collection(db, "threads"), {
@@ -470,7 +533,7 @@
         </div>
         <div class="post-content-col">
           <div class="post-date">${esc(dateLabel)}</div>
-          <div class="post-body">${esc(body)}</div>
+          <div class="post-body">${sanitizeHTML(body)}</div>
         </div>
       </div>`;
   }
@@ -481,7 +544,10 @@
 
     const replySection = currentUser
       ? `<div class="reply-form">
-           <textarea class="form-input" id="reply-body" placeholder="Write a reply..." maxlength="2000"></textarea>
+           <div class="fmt-wrap">
+             <div contenteditable="true" class="fmt-editor" id="reply-body" data-placeholder="Write a reply..."></div>
+             ${formatBar()}
+           </div>
            <div class="form-error" id="reply-err"></div>
            <div class="form-row" style="justify-content:flex-end;">
              <button class="submit-btn" id="reply-submit" onclick="submitReply()">Post Reply</button>
@@ -528,11 +594,12 @@
   }
 
   window.submitReply = async function() {
-    const body  = document.getElementById("reply-body").value.trim();
-    const errEl = document.getElementById("reply-err");
-    const btn   = document.getElementById("reply-submit");
+    const bodyEl = document.getElementById("reply-body");
+    const body   = sanitizeHTML(bodyEl.innerHTML);
+    const errEl  = document.getElementById("reply-err");
+    const btn    = document.getElementById("reply-submit");
     errEl.textContent = "";
-    if (!body) { errEl.textContent = "Reply cannot be empty."; return; }
+    if (!bodyEl.textContent.trim()) { errEl.textContent = "Reply cannot be empty."; return; }
     btn.disabled = true;
     try {
       await addDoc(collection(db, "threads", currentThread.id, "posts"), {
@@ -546,7 +613,7 @@
         replyCount:   increment(1),
         lastActivity: serverTimestamp()
       });
-      document.getElementById("reply-body").value = "";
+      bodyEl.innerHTML = "";
     } catch (ex) {
       errEl.textContent = "Failed to post reply. Try again.";
     }
