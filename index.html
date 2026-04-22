@@ -371,73 +371,36 @@
     filter: brightness(1.1) drop-shadow(0 4px 10px rgba(30,144,255,0.4));
   }
 
-  /* GUESTBOOK */
-  .guestbook-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .guestbook-form .gb-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .guestbook-form input[type="text"],
-  .guestbook-form textarea {
-    background: #111;
-    border: 1px solid #333;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    font-size: 0.85rem;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    resize: none;
-  }
-  .guestbook-form input[type="text"]:focus,
-  .guestbook-form textarea:focus { border-color: #1e90ff; }
-  .guestbook-form input[type="text"] { flex: 1; min-width: 160px; }
-  .guestbook-form textarea { width: 100%; height: 72px; }
-  .guestbook-submit {
-    background: #1e90ff;
-    color: #000;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 10px 24px;
-    border: none;
-    cursor: pointer;
-    align-self: flex-end;
-    transition: background 0.2s;
-  }
-  .guestbook-submit:hover { background: #4da6ff; }
-  .guestbook-submit:disabled { background: #333; color: #666; cursor: default; }
-  .gb-status {
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    min-height: 18px;
-    color: #1e90ff;
-  }
-  .gb-status.error { color: #ff4444; }
-  .guestbook-scroll {
-    height: 300px;
-    overflow-y: scroll;
+  /* CHAT BOX */
+  .chat-box {
     background: #0f0f0f;
     border: 1px solid #2a2a2a;
     display: flex;
     flex-direction: column;
-    padding: 8px 0;
+  }
+  .chat-header {
+    padding: 10px 16px;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #1e90ff;
+    border-bottom: 1px solid #2a2a2a;
+    background: #111;
+  }
+  .guestbook-scroll {
+    height: 300px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
   }
   .guestbook-scroll::-webkit-scrollbar { width: 8px; }
-  .guestbook-scroll::-webkit-scrollbar-track { background: #111; }
-  .guestbook-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+  .guestbook-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
+  .guestbook-scroll::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
   .guestbook-scroll::-webkit-scrollbar-thumb:hover { background: #1e90ff; }
   .gb-entry {
-    padding: 5px 14px;
-    line-height: 1.4;
+    padding: 4px 14px;
+    line-height: 1.5;
   }
   .gb-entry:hover { background: #161616; }
   .gb-name {
@@ -466,6 +429,47 @@
     letter-spacing: 2px;
     color: #333;
     text-transform: uppercase;
+  }
+  .chat-input-row {
+    display: flex;
+    border-top: 1px solid #2a2a2a;
+  }
+  .chat-input-row input {
+    background: #111;
+    border: none;
+    border-right: 1px solid #2a2a2a;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: background 0.2s;
+  }
+  .chat-input-row input:focus { background: #161616; }
+  .chat-input-row #gb-name { width: 140px; flex-shrink: 0; }
+  .chat-input-row #gb-message { flex: 1; }
+  .chat-send-btn {
+    background: #1e90ff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .chat-send-btn:hover { background: #4da6ff; }
+  .chat-send-btn:disabled { background: #222; color: #555; cursor: default; }
+  .gb-status {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: #ff4444;
+    padding: 4px 14px;
+    min-height: 20px;
   }
 
   /* FOOTER */
@@ -528,7 +532,7 @@
   <a href="#rules">Rules</a>
   <a href="#heroes">Heroes</a>
   <a href="#donate">Donate</a>
-  <a href="#guestbook">Guestbook</a>
+  <a href="#guestbook">Chat</a>
 </nav>
 
 <main>
@@ -713,21 +717,19 @@
     </table>
   </section>
 
-  <!-- GUESTBOOK -->
+  <!-- CHAT -->
   <section id="guestbook">
-    <div class="section-title">Guestbook</div>
-    <form class="guestbook-form" id="gb-form" autocomplete="off">
-      <div class="gb-row">
-        <input type="text" id="gb-name" placeholder="Your name" maxlength="50" required>
+    <div class="chat-box">
+      <div class="chat-header">Chat</div>
+      <div class="guestbook-scroll" id="gb-list">
+        <div class="gb-empty">No messages yet. Be the first.</div>
       </div>
-      <textarea id="gb-message" placeholder="Leave a message..." maxlength="300" required></textarea>
-      <div class="gb-row" style="justify-content:space-between;align-items:center;">
-        <span class="gb-status" id="gb-status"></span>
-        <button type="submit" class="guestbook-submit" id="gb-submit">Post</button>
-      </div>
-    </form>
-    <div class="guestbook-scroll" id="gb-list">
-      <div class="gb-empty" id="gb-empty">No messages yet. Be the first.</div>
+      <form class="chat-input-row" id="gb-form" autocomplete="off">
+        <input type="text" id="gb-name" placeholder="Name" maxlength="50" required>
+        <input type="text" id="gb-message" placeholder="Send a message..." maxlength="300" required>
+        <button type="submit" class="chat-send-btn" id="gb-submit">Send</button>
+      </form>
+      <div class="gb-status" id="gb-status"></div>
     </div>
   </section>
 
@@ -806,10 +808,8 @@
 
     try {
       await push(messagesRef, { name, message, timestamp: Date.now() });
-      document.getElementById("gb-name").value = "";
       document.getElementById("gb-message").value = "";
-      status.textContent = "Message posted!";
-      setTimeout(() => { status.textContent = ""; }, 3000);
+      document.getElementById("gb-message").focus();
     } catch (err) {
       status.textContent = "Failed to post. Try again.";
       status.className = "gb-status error";
