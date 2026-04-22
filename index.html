@@ -775,8 +775,8 @@
   }
 
   onValue(messagesRef, (snapshot) => {
-    const entries = [];
-    snapshot.forEach(child => entries.push(child.val()));
+    const data = snapshot.val();
+    const entries = data ? Object.values(data) : [];
     entries.sort((a, b) => b.timestamp - a.timestamp);
 
     console.log("Firebase loaded entries:", entries.length, entries);
