@@ -371,6 +371,103 @@
     filter: brightness(1.1) drop-shadow(0 4px 10px rgba(30,144,255,0.4));
   }
 
+  /* GUESTBOOK */
+  .guestbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .guestbook-form .gb-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .guestbook-form input[type="text"],
+  .guestbook-form textarea {
+    background: #111;
+    border: 1px solid #333;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+  .guestbook-form input[type="text"]:focus,
+  .guestbook-form textarea:focus { border-color: #1e90ff; }
+  .guestbook-form input[type="text"] { flex: 1; min-width: 160px; }
+  .guestbook-form textarea { width: 100%; height: 72px; }
+  .guestbook-submit {
+    background: #1e90ff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border: none;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background 0.2s;
+  }
+  .guestbook-submit:hover { background: #4da6ff; }
+  .guestbook-submit:disabled { background: #333; color: #666; cursor: default; }
+  .gb-status {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    min-height: 18px;
+    color: #1e90ff;
+  }
+  .gb-status.error { color: #ff4444; }
+  .guestbook-scroll {
+    height: 300px;
+    overflow-y: scroll;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+  }
+  .guestbook-scroll::-webkit-scrollbar { width: 8px; }
+  .guestbook-scroll::-webkit-scrollbar-track { background: #111; }
+  .guestbook-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+  .guestbook-scroll::-webkit-scrollbar-thumb:hover { background: #1e90ff; }
+  .gb-entry {
+    padding: 5px 14px;
+    line-height: 1.4;
+  }
+  .gb-entry:hover { background: #161616; }
+  .gb-name {
+    font-size: 0.8rem;
+    color: #1e90ff;
+    letter-spacing: 1px;
+    margin-right: 6px;
+  }
+  .gb-date {
+    font-size: 0.65rem;
+    color: #3a3a3a;
+    margin-right: 8px;
+  }
+  .gb-message {
+    font-size: 0.85rem;
+    color: #ccc;
+    font-weight: normal;
+    word-break: break-word;
+  }
+  .gb-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: #333;
+    text-transform: uppercase;
+  }
+
   /* FOOTER */
   footer {
     background: #0a0a0a;
@@ -431,6 +528,7 @@
   <a href="#rules">Rules</a>
   <a href="#heroes">Heroes</a>
   <a href="#donate">Donate</a>
+  <a href="#guestbook">Guestbook</a>
 </nav>
 
 <main>
@@ -615,11 +713,111 @@
     </table>
   </section>
 
+  <!-- GUESTBOOK -->
+  <section id="guestbook">
+    <div class="section-title">Guestbook</div>
+    <form class="guestbook-form" id="gb-form" autocomplete="off">
+      <div class="gb-row">
+        <input type="text" id="gb-name" placeholder="Your name" maxlength="50" required>
+      </div>
+      <textarea id="gb-message" placeholder="Leave a message..." maxlength="300" required></textarea>
+      <div class="gb-row" style="justify-content:space-between;align-items:center;">
+        <span class="gb-status" id="gb-status"></span>
+        <button type="submit" class="guestbook-submit" id="gb-submit">Post</button>
+      </div>
+    </form>
+    <div class="guestbook-scroll" id="gb-list">
+      <div class="gb-empty" id="gb-empty">No messages yet. Be the first.</div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
   &copy; OGz C-Strike Gangstaz &nbsp;|&nbsp; CS2 Superhero Mod &nbsp;|&nbsp; If you can help with the server, workshop tools, or models — message the owner on Discord
 </footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCGpy67LqR4cosW2OM8lbLcCNT6ir74Lxk",
+    authDomain: "superhero-34095.firebaseapp.com",
+    databaseURL: "https://superhero-34095-default-rtdb.firebaseio.com",
+    projectId: "superhero-34095",
+    storageBucket: "superhero-34095.firebasestorage.app",
+    messagingSenderId: "709820811872",
+    appId: "1:709820811872:web:71ea577ddff2756d131105"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const messagesRef = ref(db, "messages");
+
+  const list = document.getElementById("gb-list");
+  const empty = document.getElementById("gb-empty");
+  const form = document.getElementById("gb-form");
+  const status = document.getElementById("gb-status");
+  const submitBtn = document.getElementById("gb-submit");
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function formatDate(ts) {
+    const d = new Date(ts);
+    const today = new Date();
+    const sameDay = d.toDateString() === today.toDateString();
+    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    if (sameDay) return time;
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + time;
+  }
+
+  onValue(messagesRef, (snapshot) => {
+    const entries = [];
+    snapshot.forEach(child => entries.push(child.val()));
+    entries.sort((a, b) => b.timestamp - a.timestamp);
+
+    console.log("Firebase loaded entries:", entries.length, entries);
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="gb-empty">No messages yet. Be the first.</div>';
+    } else {
+      list.innerHTML = entries.map(entry =>
+        '<div class="gb-entry">' +
+          '<span class="gb-date">' + formatDate(entry.timestamp) + '</span>' +
+          '<span class="gb-name">' + escapeHtml(entry.name) + ':</span>' +
+          '<span class="gb-message">' + escapeHtml(entry.message) + '</span>' +
+        '</div>'
+      ).join('');
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("gb-name").value.trim();
+    const message = document.getElementById("gb-message").value.trim();
+    if (!name || !message) return;
+
+    submitBtn.disabled = true;
+    status.textContent = "";
+    status.className = "gb-status";
+
+    try {
+      await push(messagesRef, { name, message, timestamp: Date.now() });
+      document.getElementById("gb-name").value = "";
+      document.getElementById("gb-message").value = "";
+      status.textContent = "Message posted!";
+      setTimeout(() => { status.textContent = ""; }, 3000);
+    } catch (err) {
+      status.textContent = "Failed to post. Try again.";
+      status.className = "gb-status error";
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
 
 <audio id="bg-music" src="technosong.mp3" loop></audio>
 <button class="music-toggle" id="music-btn" title="Toggle music">♪</button>
