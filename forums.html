@@ -66,7 +66,7 @@
 
   /* THREAD LIST */
   .thread-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.15s; gap: 12px; }
-  .thread-avatar { width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated; flex-shrink: 0; }
+  .thread-avatar { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; flex-shrink: 0; }
   .thread-item:hover { background: #1c1c1c; }
   .thread-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
   .thread-title-text { font-size: 0.88rem; color: #fff; text-align: left; }
@@ -102,8 +102,8 @@
   .post-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; display: flex; flex-direction: row; }
   .post-item:first-child { border-top: 1px solid #1e1e1e; }
   .post-item.op { border-left: 3px solid #1e90ff; }
-  .post-author-col { width: 100px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding: 16px 10px; border-right: 1px solid #1e1e1e; gap: 6px; }
-  .post-avatar { width: 44px; height: 44px; object-fit: contain; image-rendering: pixelated; }
+  .post-author-col { width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding: 16px 10px; border-right: 1px solid #1e1e1e; gap: 6px; }
+  .post-avatar { width: 88px; height: 88px; object-fit: contain; image-rendering: pixelated; }
   .post-author-name { font-size: 0.65rem; letter-spacing: 1px; color: #1e90ff; text-transform: uppercase; text-align: center; word-break: break-word; }
   .post-content-col { flex: 1; min-width: 0; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
   .post-date { font-size: 0.65rem; color: #3a3a3a; font-weight: normal; letter-spacing: 1px; }
@@ -123,8 +123,8 @@
 
   @media (max-width: 600px) {
     header h1 { font-size: 1.8rem; }
-    .post-author-col { width: 72px; }
-    .post-avatar { width: 34px; height: 34px; }
+    .post-author-col { width: 90px; }
+    .post-avatar { width: 68px; height: 68px; }
   }
 </style>
 </head>
