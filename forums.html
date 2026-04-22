@@ -21,6 +21,8 @@
 
   /* TOP BAR */
   .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .top-bar-left { display: flex; align-items: center; gap: 10px; }
+  .top-bar-avatar { width: 28px; height: 28px; object-fit: contain; image-rendering: pixelated; }
   .top-bar-user { font-size: 0.8rem; letter-spacing: 2px; color: #1e90ff; text-transform: uppercase; }
   .top-bar-actions { display: flex; gap: 8px; align-items: center; }
   .login-link { background: #1e90ff; color: #000; font-family: Arial, sans-serif; font-weight: bold; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 8px 16px; border: none; cursor: pointer; transition: background 0.2s; }
@@ -29,11 +31,11 @@
   .logout-btn:hover { color: #ff4444; border-color: #ff4444; }
 
   /* AUTH MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-  .modal-box { background: #161616; border: 1px solid #2a2a2a; border-top: 3px solid #1e90ff; padding: 32px; width: 100%; max-width: 380px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-box { background: #161616; border: 1px solid #2a2a2a; border-top: 3px solid #1e90ff; padding: 32px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
   .modal-close { float: right; background: none; border: none; color: #555; font-size: 1.2rem; cursor: pointer; margin-top: -8px; margin-right: -8px; }
   .modal-close:hover { color: #fff; }
-  .auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid #2a2a2a; }
+  .auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid #2a2a2a; clear: both; }
   .auth-tab { padding: 10px 20px; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: #555; cursor: pointer; border: none; border-bottom: 3px solid transparent; margin-bottom: -1px; background: none; font-family: Arial, sans-serif; font-weight: bold; transition: color 0.2s; }
   .auth-tab.active { color: #1e90ff; border-bottom-color: #1e90ff; }
   .auth-form { display: flex; flex-direction: column; gap: 10px; }
@@ -44,25 +46,36 @@
   .auth-submit:hover { background: #4da6ff; }
   .auth-error { font-size: 0.75rem; color: #ff4444; letter-spacing: 1px; min-height: 18px; font-weight: normal; }
 
+  /* AVATAR PICKER */
+  .avatar-pick { display: flex; gap: 12px; margin-top: 4px; }
+  .avatar-opt { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 16px; border: 2px solid #333; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: #111; flex: 1; }
+  .avatar-opt:hover { border-color: #555; }
+  .avatar-opt.selected { border-color: #1e90ff; background: #0d1a2a; }
+  .avatar-opt img { width: 40px; height: 40px; object-fit: contain; image-rendering: pixelated; }
+  .avatar-opt span { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+  .avatar-opt.selected span { color: #1e90ff; }
+
   /* CATEGORY SECTIONS */
-  .category-section { display: flex; flex-direction: column; gap: 0; }
+  .category-section { display: flex; flex-direction: column; }
   .category-header { background: #111; border: 1px solid #2a2a2a; border-top: 3px solid #1e90ff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
   .category-name { font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase; color: #1e90ff; }
   .new-thread-btn { background: #1e90ff; color: #000; font-family: Arial, sans-serif; font-weight: bold; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px; border: none; cursor: pointer; transition: background 0.2s; }
   .new-thread-btn:hover { background: #4da6ff; }
-  .login-to-post { font-size: 0.65rem; letter-spacing: 1px; color: #444; text-transform: uppercase; cursor: pointer; }
+  .login-to-post { font-size: 0.65rem; letter-spacing: 1px; color: #444; text-transform: uppercase; cursor: pointer; font-weight: normal; }
   .login-to-post:hover { color: #1e90ff; }
 
   /* THREAD LIST */
-  .thread-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 13px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.15s; gap: 16px; }
+  .thread-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 12px 18px; display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; transition: background 0.15s; gap: 16px; }
   .thread-item:hover { background: #1c1c1c; }
-  .thread-left { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-  .thread-title-text { font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .thread-meta { font-size: 0.65rem; color: #444; font-weight: normal; letter-spacing: 1px; }
+  .thread-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+  .thread-title-text { font-size: 0.88rem; color: #fff; text-align: left; }
+  .thread-meta { font-size: 0.65rem; color: #444; font-weight: normal; letter-spacing: 1px; text-align: left; }
   .thread-meta b { color: #1e90ff; font-weight: bold; }
-  .thread-reply-count { font-size: 0.65rem; color: #333; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
-  .threads-empty { background: #111; border: 1px solid #1e1e1e; border-top: none; padding: 28px; text-align: center; font-size: 0.7rem; letter-spacing: 2px; color: #333; text-transform: uppercase; font-weight: normal; }
-  .threads-loading { background: #111; border: 1px solid #1e1e1e; border-top: none; padding: 20px; text-align: center; font-size: 0.7rem; color: #333; letter-spacing: 2px; text-transform: uppercase; font-weight: normal; }
+  .thread-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .thread-reply-count { font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .thread-time { font-size: 0.65rem; color: #333; letter-spacing: 1px; font-weight: normal; white-space: nowrap; }
+  .threads-empty { background: #111; border: 1px solid #1e1e1e; border-top: none; padding: 28px; text-align: left; font-size: 0.7rem; letter-spacing: 2px; color: #333; text-transform: uppercase; font-weight: normal; }
+  .threads-loading { background: #111; border: 1px solid #1e1e1e; border-top: none; padding: 20px 18px; text-align: left; font-size: 0.7rem; color: #333; letter-spacing: 2px; text-transform: uppercase; font-weight: normal; }
 
   /* NEW THREAD FORM */
   .new-thread-form { background: #161616; border: 1px solid #2a2a2a; border-top: none; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -80,19 +93,25 @@
   /* THREAD VIEW */
   .back-btn { background: none; border: none; color: #1e90ff; font-family: Arial, sans-serif; font-weight: bold; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; padding: 0; margin-bottom: 12px; display: inline-block; }
   .back-btn:hover { color: #fff; }
-  .thread-view-title { font-size: 1.2rem; color: #fff; margin-bottom: 4px; }
-  .thread-view-meta { font-size: 0.65rem; color: #444; letter-spacing: 1px; font-weight: normal; margin-bottom: 16px; }
+  .thread-view-title { font-size: 1.2rem; color: #fff; margin-bottom: 4px; text-align: left; }
+  .thread-view-meta { font-size: 0.65rem; color: #444; letter-spacing: 1px; font-weight: normal; margin-bottom: 16px; text-align: left; }
   .thread-view-meta b { color: #1e90ff; }
-  .post-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* POSTS — left column author, right column content */
+  .post-item { background: #161616; border: 1px solid #1e1e1e; border-top: none; display: flex; flex-direction: row; }
   .post-item:first-child { border-top: 1px solid #1e1e1e; }
   .post-item.op { border-left: 3px solid #1e90ff; }
-  .post-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .post-author { font-size: 0.75rem; letter-spacing: 2px; color: #1e90ff; text-transform: uppercase; }
-  .post-date { font-size: 0.65rem; color: #3a3a3a; font-weight: normal; }
+  .post-author-col { width: 100px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding: 16px 10px; border-right: 1px solid #1e1e1e; gap: 6px; }
+  .post-avatar { width: 44px; height: 44px; object-fit: contain; image-rendering: pixelated; }
+  .post-author-name { font-size: 0.65rem; letter-spacing: 1px; color: #1e90ff; text-transform: uppercase; text-align: center; word-break: break-word; }
+  .post-content-col { flex: 1; min-width: 0; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .post-date { font-size: 0.65rem; color: #3a3a3a; font-weight: normal; letter-spacing: 1px; }
   .post-body { font-size: 0.85rem; color: #ccc; font-weight: normal; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+
+  /* REPLY FORM */
   .reply-form { background: #161616; border: 1px solid #2a2a2a; border-top: none; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
-  .login-to-reply { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 16px 18px; font-size: 0.75rem; color: #444; text-align: center; letter-spacing: 1px; text-transform: uppercase; }
-  .login-to-reply span { color: #1e90ff; cursor: pointer; }
+  .login-to-reply { background: #161616; border: 1px solid #1e1e1e; border-top: none; padding: 16px 18px; font-size: 0.75rem; color: #444; text-align: left; letter-spacing: 1px; text-transform: uppercase; font-weight: normal; }
+  .login-to-reply span { color: #1e90ff; cursor: pointer; font-weight: bold; }
   .login-to-reply span:hover { text-decoration: underline; }
 
   footer { background: #0a0a0a; border-top: 1px solid #1e1e1e; text-align: center; padding: 28px 20px; font-size: 0.7rem; letter-spacing: 2px; color: #444; text-transform: uppercase; }
@@ -100,7 +119,8 @@
 
   @media (max-width: 600px) {
     header h1 { font-size: 1.8rem; }
-    .thread-reply-count { display: none; }
+    .post-author-col { width: 72px; }
+    .post-avatar { width: 34px; height: 34px; }
   }
 </style>
 </head>
@@ -117,7 +137,7 @@
 </nav>
 
 <main id="app">
-  <div style="padding:60px;text-align:center;font-size:0.75rem;letter-spacing:3px;color:#333;text-transform:uppercase;">Loading...</div>
+  <div style="padding:60px;text-align:left;font-size:0.75rem;letter-spacing:3px;color:#333;text-transform:uppercase;">Loading...</div>
 </main>
 
 <div id="auth-modal" class="hidden">
@@ -146,6 +166,17 @@
           <input type="email" id="reg-email" required autocomplete="email">
           <label>Password</label>
           <input type="password" id="reg-pass" minlength="6" required autocomplete="new-password">
+          <label>Choose your icon</label>
+          <div class="avatar-pick">
+            <div class="avatar-opt selected" id="av-ct" onclick="selectAvatar('ct.png')">
+              <img src="ct.png" alt="CT">
+              <span>CT</span>
+            </div>
+            <div class="avatar-opt" id="av-t" onclick="selectAvatar('t.png')">
+              <img src="t.png" alt="T">
+              <span>T</span>
+            </div>
+          </div>
           <div class="auth-error" id="reg-err"></div>
           <button type="submit" class="auth-submit">Create Account</button>
         </form>
@@ -161,7 +192,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-  import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, increment, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, increment, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCGpy67LqR4cosW2OM8lbLcCNT6ir74Lxk",
@@ -178,13 +209,17 @@
   const db   = getFirestore(app);
 
   const CATEGORIES = ["General", "Off-Topic", "Hero Requests"];
+  const AVATAR_OVERRIDE = { "LOOTENANT BIG POOPIE": "arctic.png" };
+
   const appEl = document.getElementById("app");
 
-  let currentUser   = null;
-  let currentThread = null;
-  let threadsCache  = {};
-  let unsubMap      = {};
-  let unsubPosts    = null;
+  let currentUser       = null;
+  let currentUserAvatar = "ct.png";
+  let currentThread     = null;
+  let threadsCache      = {};
+  let unsubMap          = {};
+  let unsubPosts        = null;
+  let selectedAvatar    = "ct.png";
 
   // ── Utilities ─────────────────────────────────────────────────────────────
 
@@ -196,11 +231,16 @@
     if (!ts) return "";
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     const diff = Date.now() - d.getTime();
-    if (diff < 60000) return "just now";
-    if (diff < 3600000) return Math.floor(diff/60000) + "m ago";
-    if (diff < 86400000) return Math.floor(diff/3600000) + "h ago";
+    if (diff < 60000)      return "just now";
+    if (diff < 3600000)    return Math.floor(diff/60000) + "m ago";
+    if (diff < 86400000)   return Math.floor(diff/3600000) + "h ago";
     if (diff < 2592000000) return Math.floor(diff/86400000) + "d ago";
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function resolveAvatar(username, saved) {
+    if (AVATAR_OVERRIDE[username]) return AVATAR_OVERRIDE[username];
+    return saved || "ct.png";
   }
 
   function authErrMsg(code) {
@@ -215,18 +255,20 @@
     })[code] || "Something went wrong. Try again.";
   }
 
+  // ── Avatar picker ─────────────────────────────────────────────────────────
+
+  window.selectAvatar = function(file) {
+    selectedAvatar = file;
+    document.getElementById("av-ct").classList.toggle("selected", file === "ct.png");
+    document.getElementById("av-t").classList.toggle("selected",  file === "t.png");
+  };
+
   // ── Auth modal ────────────────────────────────────────────────────────────
 
-  window.showModal = function() {
-    document.getElementById("auth-modal").classList.remove("hidden");
-  };
-  window.hideModal = function() {
-    document.getElementById("auth-modal").classList.add("hidden");
-  };
-  window.closeModal = function(e) {
-    if (e.target === e.currentTarget) hideModal();
-  };
-  window.switchTab = function(tab) {
+  window.showModal    = function() { document.getElementById("auth-modal").classList.remove("hidden"); };
+  window.hideModal    = function() { document.getElementById("auth-modal").classList.add("hidden"); };
+  window.closeModal   = function(e) { if (e.target === e.currentTarget) hideModal(); };
+  window.switchTab    = function(tab) {
     document.getElementById("pane-login").classList.toggle("hidden",    tab !== "login");
     document.getElementById("pane-register").classList.toggle("hidden", tab !== "register");
     document.getElementById("tab-login").classList.toggle("active",    tab === "login");
@@ -256,7 +298,9 @@
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(cred.user, { displayName: username });
-      await setDoc(doc(db, "users", cred.user.uid), { username, email, createdAt: serverTimestamp() });
+      await setDoc(doc(db, "users", cred.user.uid), {
+        username, email, avatar: selectedAvatar, createdAt: serverTimestamp()
+      });
       hideModal();
     } catch (ex) { errEl.textContent = authErrMsg(ex.code); }
   });
@@ -272,33 +316,45 @@
 
   // ── Forum (all categories stacked) ───────────────────────────────────────
 
+  function topBarHTML() {
+    if (currentUser) {
+      return `<div class="top-bar-left">
+                <img class="top-bar-avatar" src="${esc(currentUserAvatar)}" alt="">
+                <span class="top-bar-user">${esc(currentUser.displayName || currentUser.email)}</span>
+              </div>
+              <div class="top-bar-actions">
+                <button class="logout-btn" onclick="doLogout()">Logout</button>
+              </div>`;
+    }
+    return `<div class="top-bar-left" style="font-size:0.7rem;letter-spacing:1px;color:#444;text-transform:uppercase;font-weight:normal;">Browse freely — login to post</div>
+            <div class="top-bar-actions">
+              <button class="login-link" onclick="showModal()">Login / Register</button>
+            </div>`;
+  }
+
   function renderForum() {
-    const userHTML = currentUser
-      ? `<span class="top-bar-user">${esc(currentUser.displayName || currentUser.email)}</span>
-         <button class="logout-btn" onclick="doLogout()">Logout</button>`
-      : `<span style="font-size:0.7rem;letter-spacing:1px;color:#444;text-transform:uppercase;font-weight:normal;">Browse freely — login to post</span>
-         <button class="login-link" onclick="showModal()">Login / Register</button>`;
-
     appEl.innerHTML =
-      `<div class="top-bar"><div class="top-bar-actions" style="margin-left:auto;">${userHTML}</div></div>` +
-      CATEGORIES.map(cat => `
-        <div class="category-section" id="cat-${esc(cat.replace(/\s+/g,'-'))}">
-          <div class="category-header">
-            <span class="category-name">${esc(cat)}</span>
-            ${currentUser
-              ? `<button class="new-thread-btn" onclick="showNewThread('${esc(cat)}')">+ New Thread</button>`
-              : `<span class="login-to-post" onclick="showModal()">Login to post</span>`}
-          </div>
-          <div id="list-${esc(cat.replace(/\s+/g,'-'))}" class="threads-loading">Loading...</div>
-        </div>`
-      ).join("");
+      `<div class="top-bar">${topBarHTML()}</div>` +
+      CATEGORIES.map(cat => {
+        const sid = cat.replace(/\s+/g, "-");
+        return `
+          <div class="category-section" id="cat-${esc(sid)}">
+            <div class="category-header">
+              <span class="category-name">${esc(cat)}</span>
+              ${currentUser
+                ? `<button class="new-thread-btn" onclick="showNewThread('${esc(cat)}')">+ New Thread</button>`
+                : `<span class="login-to-post" onclick="showModal()">Login to post</span>`}
+            </div>
+            <div id="list-${esc(sid)}" class="threads-loading">Loading...</div>
+          </div>`;
+      }).join("");
 
-    CATEGORIES.forEach(cat => loadThreadsForCat(cat));
+    CATEGORIES.forEach(loadThreadsForCat);
   }
 
   function loadThreadsForCat(cat) {
-    const safeId = cat.replace(/\s+/g, "-");
-    const wrap = document.getElementById(`list-${safeId}`);
+    const sid  = cat.replace(/\s+/g, "-");
+    const wrap = document.getElementById(`list-${sid}`);
     if (!wrap) return;
 
     const q = query(collection(db, "threads"), orderBy("lastActivity", "desc"));
@@ -307,19 +363,23 @@
       snap.forEach(d => { threadsCache[d.id] = { id: d.id, ...d.data() }; });
 
       const filtered = Object.values(threadsCache).filter(t => t.category === cat);
-      if (!document.getElementById(`list-${safeId}`)) return;
+      const el = document.getElementById(`list-${sid}`);
+      if (!el) return;
 
       if (filtered.length === 0) {
-        wrap.innerHTML = `<div class="threads-empty">No threads yet.</div>`;
+        el.innerHTML = `<div class="threads-empty">No threads yet.</div>`;
         return;
       }
-      wrap.innerHTML = filtered.map(t => `
+      el.innerHTML = filtered.map(t => `
         <div class="thread-item" onclick="openThread('${esc(t.id)}')">
           <div class="thread-left">
             <div class="thread-title-text">${esc(t.title)}</div>
-            <div class="thread-meta">by <b>${esc(t.authorName || "Unknown")}</b> &nbsp;·&nbsp; ${timeAgo(t.createdAt)}</div>
+            <div class="thread-meta">by <b>${esc(t.authorName || "Unknown")}</b>${t.authorName === "LOOTENANT BIG POOPIE" ? ' <span style="color:#ff3333;letter-spacing:1px;">· OWNER</span>' : ""}</div>
           </div>
-          <div class="thread-reply-count">${t.replyCount || 0} ${t.replyCount === 1 ? "reply" : "replies"}</div>
+          <div class="thread-right">
+            <span class="thread-reply-count">${t.replyCount || 0} ${t.replyCount === 1 ? "reply" : "replies"}</span>
+            <span class="thread-time">${timeAgo(t.createdAt)}</span>
+          </div>
         </div>`).join("");
     });
   }
@@ -333,51 +393,50 @@
   // ── New thread form ───────────────────────────────────────────────────────
 
   window.showNewThread = function(cat) {
-    const safeId = cat.replace(/\s+/g, "-");
-    const section = document.getElementById(`cat-${safeId}`);
-    if (!section) return;
-    const existing = section.querySelector(".new-thread-form");
-    if (existing) return;
+    const sid     = cat.replace(/\s+/g, "-");
+    const section = document.getElementById(`cat-${sid}`);
+    if (!section || section.querySelector(".new-thread-form")) return;
     const form = document.createElement("div");
     form.className = "new-thread-form";
-    form.id = `ntf-${safeId}`;
+    form.id = `ntf-${sid}`;
     form.innerHTML = `
-      <input class="form-input" type="text" id="nt-title-${safeId}" placeholder="Thread title" maxlength="120">
-      <textarea class="form-input" id="nt-body-${safeId}" placeholder="Write your post..."></textarea>
-      <div class="form-error" id="nt-err-${safeId}"></div>
+      <input class="form-input" type="text" id="nt-title-${sid}" placeholder="Thread title" maxlength="120">
+      <textarea class="form-input" id="nt-body-${sid}" placeholder="Write your post..."></textarea>
+      <div class="form-error" id="nt-err-${sid}"></div>
       <div class="form-row">
-        <button class="cancel-btn" onclick="cancelNewThread('${esc(safeId)}')">Cancel</button>
-        <button class="submit-btn" id="nt-sub-${safeId}" onclick="submitThread('${esc(cat)}','${esc(safeId)}')">Post Thread</button>
+        <button class="cancel-btn" onclick="cancelNewThread('${esc(sid)}')">Cancel</button>
+        <button class="submit-btn" id="nt-sub-${sid}" onclick="submitThread('${esc(cat)}','${esc(sid)}')">Post Thread</button>
       </div>`;
     section.appendChild(form);
   };
 
-  window.cancelNewThread = function(safeId) {
-    const f = document.getElementById(`ntf-${safeId}`);
+  window.cancelNewThread = function(sid) {
+    const f = document.getElementById(`ntf-${sid}`);
     if (f) f.remove();
   };
 
-  window.submitThread = async function(cat, safeId) {
-    const title = document.getElementById(`nt-title-${safeId}`).value.trim();
-    const body  = document.getElementById(`nt-body-${safeId}`).value.trim();
-    const errEl = document.getElementById(`nt-err-${safeId}`);
-    const btn   = document.getElementById(`nt-sub-${safeId}`);
+  window.submitThread = async function(cat, sid) {
+    const title = document.getElementById(`nt-title-${sid}`).value.trim();
+    const body  = document.getElementById(`nt-body-${sid}`).value.trim();
+    const errEl = document.getElementById(`nt-err-${sid}`);
+    const btn   = document.getElementById(`nt-sub-${sid}`);
     errEl.textContent = "";
-    if (!title) { errEl.textContent = "Title is required."; return; }
-    if (!body)  { errEl.textContent = "Post body is required."; return; }
+    if (!title) { errEl.textContent = "Title is required.";      return; }
+    if (!body)  { errEl.textContent = "Post body is required.";  return; }
     btn.disabled = true;
     try {
       const ref = await addDoc(collection(db, "threads"), {
         title, body, category: cat,
-        authorId:   currentUser.uid,
-        authorName: currentUser.displayName || currentUser.email,
+        authorId:     currentUser.uid,
+        authorName:   currentUser.displayName || currentUser.email,
+        authorAvatar: currentUserAvatar,
         createdAt:    serverTimestamp(),
         lastActivity: serverTimestamp(),
-        replyCount: 0
+        replyCount:   0
       });
       currentThread = { id: ref.id, title, body, category: cat,
         authorName: currentUser.displayName || currentUser.email,
-        createdAt: null, replyCount: 0 };
+        authorAvatar: currentUserAvatar, createdAt: null, replyCount: 0 };
       render();
     } catch (ex) {
       errEl.textContent = "Failed to post. Try again.";
@@ -387,8 +446,26 @@
 
   // ── Thread view ───────────────────────────────────────────────────────────
 
+  function postHTML(authorName, authorAvatar, dateLabel, body, isOP) {
+    const isOwner = authorName === "LOOTENANT BIG POOPIE";
+    return `
+      <div class="post-item${isOP ? " op" : ""}">
+        <div class="post-author-col">
+          <img class="post-avatar" src="${esc(authorAvatar)}" alt="${esc(authorName)}">
+          <span class="post-author-name">${esc(authorName)}</span>
+          ${isOwner ? `<span style="font-size:0.55rem;letter-spacing:2px;color:#ff3333;text-transform:uppercase;">Owner</span>` : ""}
+        </div>
+        <div class="post-content-col">
+          <div class="post-date">${esc(dateLabel)}</div>
+          <div class="post-body">${esc(body)}</div>
+        </div>
+      </div>`;
+  }
+
   function renderThread() {
     const t = currentThread;
+    const opAvatar = resolveAvatar(t.authorName, t.authorAvatar);
+
     const replySection = currentUser
       ? `<div class="reply-form">
            <textarea class="form-input" id="reply-body" placeholder="Write a reply..." maxlength="2000"></textarea>
@@ -402,28 +479,13 @@
          </div>`;
 
     appEl.innerHTML = `
-      <div class="top-bar">
-        <button class="back-btn" onclick="closeThread()">&#8592; Back to Forums</button>
-        <div class="top-bar-actions">
-          ${currentUser
-            ? `<span class="top-bar-user">${esc(currentUser.displayName || currentUser.email)}</span>
-               <button class="logout-btn" onclick="doLogout()">Logout</button>`
-            : `<button class="login-link" onclick="showModal()">Login / Register</button>`}
-        </div>
-      </div>
+      <div class="top-bar">${topBarHTML()}</div>
       <div>
+        <button class="back-btn" onclick="closeThread()">&#8592; Back to Forums</button>
         <div class="thread-view-title">${esc(t.title)}</div>
-        <div class="thread-view-meta">
-          in <b>${esc(t.category)}</b> &nbsp;·&nbsp; by <b>${esc(t.authorName || "Unknown")}</b>
-        </div>
+        <div class="thread-view-meta">in <b>${esc(t.category)}</b></div>
         <div id="posts-wrap">
-          <div class="post-item op">
-            <div class="post-header">
-              <span class="post-author">${esc(t.authorName || "Unknown")}</span>
-              <span class="post-date">Original Post</span>
-            </div>
-            <div class="post-body">${esc(t.body || "")}</div>
-          </div>
+          ${postHTML(t.authorName || "Unknown", opAvatar, "Original Post", t.body || "", true)}
           <div id="replies-wrap"></div>
         </div>
         ${replySection}
@@ -432,10 +494,7 @@
     loadReplies();
   }
 
-  window.closeThread = function() {
-    currentThread = null;
-    render();
-  };
+  window.closeThread = function() { currentThread = null; render(); };
 
   function loadReplies() {
     const wrap = document.getElementById("replies-wrap");
@@ -449,13 +508,8 @@
       if (!el) return;
       el.innerHTML = snap.docs.map(d => {
         const p = d.data();
-        return `<div class="post-item">
-          <div class="post-header">
-            <span class="post-author">${esc(p.authorName || "Unknown")}</span>
-            <span class="post-date">${timeAgo(p.createdAt)}</span>
-          </div>
-          <div class="post-body">${esc(p.body || "")}</div>
-        </div>`;
+        const av = resolveAvatar(p.authorName, p.authorAvatar);
+        return postHTML(p.authorName || "Unknown", av, timeAgo(p.createdAt), p.body || "", false);
       }).join("");
     });
   }
@@ -470,9 +524,10 @@
     try {
       await addDoc(collection(db, "threads", currentThread.id, "posts"), {
         body,
-        authorId:   currentUser.uid,
-        authorName: currentUser.displayName || currentUser.email,
-        createdAt:  serverTimestamp()
+        authorId:     currentUser.uid,
+        authorName:   currentUser.displayName || currentUser.email,
+        authorAvatar: currentUserAvatar,
+        createdAt:    serverTimestamp()
       });
       await updateDoc(doc(db, "threads", currentThread.id), {
         replyCount:   increment(1),
@@ -489,9 +544,17 @@
 
   window.doLogout = async function() { await signOut(auth); };
 
-  onAuthStateChanged(auth, user => {
-    currentUser   = user;
+  onAuthStateChanged(auth, async user => {
+    currentUser = user;
     currentThread = null;
+    if (user) {
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        currentUserAvatar = resolveAvatar(user.displayName, snap.exists() ? snap.data().avatar : null);
+      } catch (_) {
+        currentUserAvatar = resolveAvatar(user.displayName, null);
+      }
+    }
     render();
   });
 </script>
