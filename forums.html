@@ -115,6 +115,9 @@
   .login-to-reply span { color: #1e90ff; cursor: pointer; font-weight: bold; }
   .login-to-reply span:hover { text-decoration: underline; }
 
+  .forums-logo { width: 200px; height: 200px; object-fit: contain; filter: drop-shadow(0 0 16px rgba(30,144,255,0.35)); transition: transform 0.2s, filter 0.2s; }
+  .forums-logo:hover { transform: translateY(-3px); filter: drop-shadow(0 0 24px rgba(30,144,255,0.6)); }
+
   footer { background: #0a0a0a; border-top: 1px solid #1e1e1e; text-align: center; padding: 28px 20px; font-size: 0.7rem; letter-spacing: 2px; color: #444; text-transform: uppercase; }
   .hidden { display: none !important; }
 
@@ -336,7 +339,7 @@
   function renderForum() {
     appEl.innerHTML =
       `<div style="display:flex;justify-content:center;">
-        <img src="cstrikegangstaz.png" alt="OGz C-Strike Gangstaz" style="width:200px;height:200px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(30,144,255,0.35));">
+        <img src="cstrikegangstaz.png" alt="OGz C-Strike Gangstaz" class="forums-logo">
        </div>` +
       `<div class="top-bar">${topBarHTML()}</div>` +
       CATEGORIES.map(cat => {
