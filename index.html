@@ -795,24 +795,54 @@
     }
   });
 
+  const COOLDOWN_MS = 60000;
+  let countdownInterval = null;
+
+  function getCooldownRemaining() {
+    const last = parseInt(localStorage.getItem("gb_last_post") || "0");
+    return Math.max(0, COOLDOWN_MS - (Date.now() - last));
+  }
+
+  function startCooldown() {
+    localStorage.setItem("gb_last_post", Date.now().toString());
+    submitBtn.disabled = true;
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+      const remaining = getCooldownRemaining();
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send";
+        status.textContent = "";
+      } else {
+        submitBtn.textContent = Math.ceil(remaining / 1000) + "s";
+      }
+    }, 500);
+  }
+
+  // Restore cooldown if page was refreshed mid-cooldown
+  if (getCooldownRemaining() > 0) {
+    startCooldown();
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (getCooldownRemaining() > 0) return;
+
     const name = document.getElementById("gb-name").value.trim();
     const message = document.getElementById("gb-message").value.trim();
     if (!name || !message) return;
 
     submitBtn.disabled = true;
     status.textContent = "";
-    status.className = "gb-status";
 
     try {
       await push(messagesRef, { name, message, timestamp: Date.now() });
       document.getElementById("gb-message").value = "";
       document.getElementById("gb-message").focus();
+      startCooldown();
     } catch (err) {
       status.textContent = "Failed to post. Try again.";
-      status.className = "gb-status error";
-    } finally {
       submitBtn.disabled = false;
     }
   });
