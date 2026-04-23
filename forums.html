@@ -734,10 +734,25 @@
     const sig       = document.getElementById("profile-sig").value.trim();
     const username  = currentUser.displayName;
     const newAvatar = AVATAR_OVERRIDE[username] ? resolveAvatar(username, null) : profileSelectedAvatar;
+
+    // Save the user doc first — if this fails, show the error and stop
     try {
       await updateDoc(doc(db, "users", uid), { avatar: newAvatar, signature: sig });
+    } catch (ex) {
+      console.error("saveProfile user doc:", ex);
+      errEl.textContent = "Failed to save. Try again.";
+      if (btn) btn.disabled = false;
+      return;
+    }
 
-      // Retroactively update signature on all existing threads and replies by this user
+    // Profile saved — update local state and close immediately
+    currentUserAvatar    = resolveAvatar(username, newAvatar);
+    currentUserSignature = sig;
+    closeProfileModalDirect();
+    render();
+
+    // Backfill signature on existing posts in the background (best-effort)
+    try {
       const [threadSnap, postSnap] = await Promise.all([
         getDocs(query(collection(db, "threads"), where("authorId", "==", uid))),
         getDocs(query(collectionGroup(db, "posts"), where("authorId", "==", uid)))
@@ -746,14 +761,8 @@
         ...threadSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig })),
         ...postSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig }))
       ]);
-
-      currentUserAvatar    = resolveAvatar(username, newAvatar);
-      currentUserSignature = sig;
-      closeProfileModalDirect();
-      render();
     } catch (ex) {
-      errEl.textContent = "Failed to save. Try again.";
-      if (btn) btn.disabled = false;
+      console.error("saveProfile backfill:", ex);
     }
   };
 
