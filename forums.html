@@ -128,6 +128,26 @@
   .login-to-reply span { color: #1e90ff; cursor: pointer; font-weight: bold; }
   .login-to-reply span:hover { text-decoration: underline; }
 
+  /* IMAGE / LINK INSERT ROW */
+  .fmt-insert-row { display: none; align-items: center; gap: 6px; padding: 6px 8px; background: #0a0a0a; border-top: 1px solid #1a1a1a; flex-wrap: wrap; }
+  .fmt-insert-row.active { display: flex; }
+  .fmt-url-input { flex: 1; min-width: 80px; background: #111; border: 1px solid #333; color: #fff; font-family: Arial, sans-serif; font-weight: normal; font-size: 0.78rem; padding: 4px 8px; outline: none; transition: border-color 0.2s; }
+  .fmt-url-input:focus { border-color: #1e90ff; }
+  .fmt-label-input { flex: 0 0 140px; }
+  .fmt-insert-ok { background: #1e90ff; border: none; color: #000; font-family: Arial, sans-serif; font-weight: bold; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; cursor: pointer; flex-shrink: 0; }
+  .fmt-insert-ok:hover { background: #4da6ff; }
+  .fmt-insert-cancel { background: none; border: none; color: #444; font-size: 1rem; cursor: pointer; padding: 2px 5px; flex-shrink: 0; line-height: 1; }
+  .fmt-insert-cancel:hover { color: #fff; }
+  /* IMAGE RESIZE BAR */
+  .img-resize-bar { position: fixed; z-index: 300; background: #1a1a1a; border: 1px solid #333; border-top: 2px solid #1e90ff; padding: 6px 8px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+  .img-resize-bar.hidden { display: none !important; }
+  .img-resize-selected { border-color: #1e90ff !important; color: #1e90ff !important; }
+  .img-resize-px { width: 56px; flex: none; }
+
+  .post-body img { max-width: 100%; height: auto; display: block; margin: 6px 0; border-radius: 2px; }
+  .post-body a { color: #1e90ff; text-decoration: none; word-break: break-all; }
+  .post-body a:hover { text-decoration: underline; }
+
   /* DELETE / PROFILE */
   .delete-post-btn { background: none; border: none; color: #2a2a2a; font-size: 0.85rem; cursor: pointer; padding: 0 0 0 8px; vertical-align: middle; transition: color 0.15s; }
   .delete-post-btn:hover { color: #ff4444; }
@@ -214,6 +234,18 @@
   </div>
 </div>
 
+<div id="img-resize-bar" class="img-resize-bar hidden">
+  <span style="font-size:0.6rem;color:#555;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;">Resize:</span>
+  <button class="fmt-btn" onclick="setImgWidth('200px')" data-w="200px">S</button>
+  <button class="fmt-btn" onclick="setImgWidth('400px')" data-w="400px">M</button>
+  <button class="fmt-btn" onclick="setImgWidth('600px')" data-w="600px">L</button>
+  <button class="fmt-btn" onclick="setImgWidth('100%')"  data-w="100%">Full</button>
+  <span class="fmt-sep"></span>
+  <input id="img-resize-px" type="number" class="fmt-url-input img-resize-px" placeholder="px" min="10" max="2000" onkeydown="if(event.key==='Enter'){event.preventDefault();applyImgPx();}">
+  <button class="fmt-insert-ok" onclick="applyImgPx()">Set</button>
+  <button class="fmt-insert-cancel" onclick="hideImgResize()">&#10005;</button>
+</div>
+
 <footer>
   &copy; OGz C-Strike Gangstaz &nbsp;|&nbsp; CS2 Superhero Mod
 </footer>
@@ -252,6 +284,7 @@
   let selectedAvatar        = "ct.png";
   let profileSelectedAvatar = "ct.png";
   const profileCache        = {};
+  const _fmtState           = {};
 
   // ── Utilities ─────────────────────────────────────────────────────────────
 
@@ -309,19 +342,29 @@
 
   const EMOJIS = ['😊','😄','😂','😢','😡','😈','😎','😛','😉','👍','💀','🔥','🤔','😱','🎉'];
 
-  function formatBar() {
+  function formatBar(wid) {
     return `<div class="fmt-bar">
       <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('bold')" title="Bold"><b>B</b></button>
       <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('italic')" title="Italic"><i>I</i></button>
       <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('underline')" title="Underline"><u>U</u></button>
       <button type="button" class="fmt-btn" onmousedown="event.preventDefault();document.execCommand('strikeThrough')" title="Strikethrough"><s>S</s></button>
       <span class="fmt-sep"></span>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();showFmtInsert('${wid}','img')" title="Insert Image">🏞️</button>
+      <button type="button" class="fmt-btn" onmousedown="event.preventDefault();showFmtInsert('${wid}','link')" title="Insert Link / Attachment">📎</button>
+      <span class="fmt-sep"></span>
       ${EMOJIS.map(e => `<button type="button" class="fmt-emoji" onmousedown="event.preventDefault();document.execCommand('insertText',false,'${e}')">${e}</button>`).join('')}
+    </div>
+    <div class="fmt-insert-row" id="fir-${wid}">
+      <input class="fmt-url-input" id="fiu-${wid}" placeholder="https://..." onkeydown="if(event.key==='Enter'){event.preventDefault();confirmFmtInsert('${wid}');}">
+      <input class="fmt-url-input fmt-label-input hidden" id="fil-${wid}" placeholder="Label (optional)" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmFmtInsert('${wid}');}">
+      <button type="button" class="fmt-insert-ok" onclick="confirmFmtInsert('${wid}')">Insert</button>
+      <button type="button" class="fmt-insert-cancel" onclick="hideFmtInsert('${wid}')">&#10005;</button>
     </div>`;
   }
 
   function sanitizeHTML(html) {
-    const ALLOWED = new Set(['b','strong','i','em','u','s','strike','span','br','div','p']);
+    const ALLOWED = new Set(['b','strong','i','em','u','s','strike','span','br','div','p','img','a']);
+    const SAFE_URL = url => /^https?:\/\//i.test(url);
     const tmp = document.createElement("div");
     tmp.innerHTML = html;
     function clean(el) {
@@ -332,6 +375,33 @@
         if (!ALLOWED.has(tag)) {
           while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
           node.remove();
+          return;
+        }
+        if (tag === 'img') {
+          const src = node.getAttribute('src') || '';
+          const w   = node.style.width || '';
+          [...node.attributes].forEach(a => node.removeAttribute(a.name));
+          if (SAFE_URL(src)) {
+            node.setAttribute('src', src);
+            node.setAttribute('alt', '');
+            const safeW = /^(\d+(\.\d+)?(px|%))$/.test(w.trim()) ? `width:${w};` : '';
+            node.setAttribute('style', `max-width:100%;height:auto;${safeW}`);
+          } else { node.remove(); }
+          return;
+        }
+        if (tag === 'a') {
+          const href = node.getAttribute('href') || '';
+          [...node.attributes].forEach(a => node.removeAttribute(a.name));
+          if (SAFE_URL(href)) {
+            node.setAttribute('href', href);
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'noopener noreferrer');
+          } else {
+            while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
+            node.remove();
+            return;
+          }
+          clean(node);
           return;
         }
         [...node.attributes].forEach(a => { if (a.name !== 'style') node.removeAttribute(a.name); });
@@ -350,6 +420,124 @@
     clean(tmp);
     return tmp.innerHTML;
   }
+
+  // ── Image / link insert ───────────────────────────────────────────────────
+
+  window.showFmtInsert = function(wid, type) {
+    const row   = document.getElementById('fir-' + wid);
+    const urlIn = document.getElementById('fiu-' + wid);
+    const lblIn = document.getElementById('fil-' + wid);
+    if (!row) return;
+
+    const isOpen   = row.classList.contains('active');
+    const sameType = _fmtState[wid]?.type === type;
+
+    // Capture cursor position before anything changes focus
+    const sel   = window.getSelection();
+    const range = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+
+    if (isOpen && sameType) { hideFmtInsert(wid); return; }
+
+    _fmtState[wid] = { range, type };
+    urlIn.placeholder = type === 'img' ? 'https://example.com/image.png' : 'https://example.com/file.zip';
+    urlIn.value = '';
+    lblIn.value = '';
+    lblIn.classList.toggle('hidden', type === 'img');
+    row.classList.add('active');
+    setTimeout(() => urlIn.focus(), 0);
+  };
+
+  window.hideFmtInsert = function(wid) {
+    document.getElementById('fir-' + wid)?.classList.remove('active');
+  };
+
+  window.confirmFmtInsert = function(wid) {
+    const urlIn = document.getElementById('fiu-' + wid);
+    const lblIn = document.getElementById('fil-' + wid);
+    const url   = (urlIn?.value || '').trim();
+    const state = _fmtState[wid];
+
+    if (!/^https?:\/\//i.test(url)) {
+      if (urlIn) { urlIn.style.borderColor = '#ff4444'; setTimeout(() => urlIn.style.borderColor = '', 1200); }
+      return;
+    }
+
+    // Restore cursor to editor
+    if (state?.range) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(state.range);
+    }
+
+    const safeUrl = url.replace(/"/g, '%22');
+
+    if (state?.type === 'img') {
+      document.execCommand('insertHTML', false,
+        `<img src="${safeUrl}" alt="" style="max-width:100%;height:auto;">`);
+    } else {
+      const rawLabel = (lblIn?.value || '').trim() || url.split('/').pop().split('?')[0] || 'attachment';
+      const label    = rawLabel.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      document.execCommand('insertHTML', false,
+        `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">📎 ${label}</a>`);
+    }
+
+    hideFmtInsert(wid);
+  };
+
+  // ── Image resize ──────────────────────────────────────────────────────────
+
+  let _resizeTarget = null;
+
+  window.onEditorClick = function(e) {
+    if (e.target.tagName === 'IMG') {
+      showImgResize(e.target);
+    } else {
+      hideImgResize();
+    }
+  };
+
+  function showImgResize(img) {
+    _resizeTarget = img;
+    const bar  = document.getElementById('img-resize-bar');
+    const rect = img.getBoundingClientRect();
+    bar.style.top  = Math.min(rect.bottom + 6, window.innerHeight - 60) + 'px';
+    bar.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - 340)) + 'px';
+    // Highlight whichever preset matches current width
+    const cur = img.style.width || '';
+    bar.querySelectorAll('[data-w]').forEach(btn => {
+      btn.classList.toggle('img-resize-selected', btn.dataset.w === cur);
+    });
+    document.getElementById('img-resize-px').value = '';
+    bar.classList.remove('hidden');
+  }
+
+  window.hideImgResize = function() {
+    _resizeTarget = null;
+    document.getElementById('img-resize-bar')?.classList.add('hidden');
+  };
+
+  window.setImgWidth = function(val) {
+    if (!_resizeTarget) return;
+    _resizeTarget.style.width    = val;
+    _resizeTarget.style.maxWidth = '100%';
+    _resizeTarget.style.height   = 'auto';
+    // Update button highlights
+    document.getElementById('img-resize-bar').querySelectorAll('[data-w]').forEach(btn => {
+      btn.classList.toggle('img-resize-selected', btn.dataset.w === val);
+    });
+  };
+
+  window.applyImgPx = function() {
+    const input = document.getElementById('img-resize-px');
+    const px    = parseInt(input?.value || '0');
+    if (px > 0 && _resizeTarget) setImgWidth(px + 'px');
+  };
+
+  document.addEventListener('click', e => {
+    if (!_resizeTarget) return;
+    const bar = document.getElementById('img-resize-bar');
+    if (bar && !bar.contains(e.target) && e.target !== _resizeTarget) hideImgResize();
+  });
 
   // ── Auth modal ────────────────────────────────────────────────────────────
 
@@ -499,8 +687,8 @@
     form.innerHTML = `
       <input class="form-input" type="text" id="nt-title-${sid}" placeholder="Thread title" maxlength="120">
       <div class="fmt-wrap">
-        <div contenteditable="true" class="fmt-editor fmt-editor-tall" id="nt-body-${sid}" data-placeholder="Write your post..."></div>
-        ${formatBar()}
+        <div contenteditable="true" class="fmt-editor fmt-editor-tall" id="nt-body-${sid}" data-placeholder="Write your post..." onclick="onEditorClick(event)"></div>
+        ${formatBar('nt-' + sid)}
       </div>
       <div class="form-error" id="nt-err-${sid}"></div>
       <div class="form-row">
@@ -584,8 +772,8 @@
     const replySection = currentUser
       ? `<div class="reply-form">
            <div class="fmt-wrap">
-             <div contenteditable="true" class="fmt-editor" id="reply-body" data-placeholder="Write a reply..."></div>
-             ${formatBar()}
+             <div contenteditable="true" class="fmt-editor" id="reply-body" data-placeholder="Write a reply..." onclick="onEditorClick(event)"></div>
+             ${formatBar('reply')}
            </div>
            <div class="form-error" id="reply-err"></div>
            <div class="form-row" style="justify-content:flex-end;">
