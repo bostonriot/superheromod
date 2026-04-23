@@ -288,7 +288,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
   import { getFirestore, collection, collectionGroup, addDoc, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, increment, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -613,7 +613,9 @@
       await setDoc(doc(db, "users", cred.user.uid), {
         username, email, avatar: selectedAvatar, createdAt: serverTimestamp()
       });
-      hideModal();
+      await sendEmailVerification(cred.user);
+      errEl.style.color = "#4da6ff";
+      errEl.textContent = "Account created! Check your email to verify before posting.";
     } catch (ex) { errEl.textContent = authErrMsg(ex.code); }
   });
 
@@ -656,9 +658,11 @@
           <div class="category-section" id="cat-${esc(sid)}">
             <div class="category-header">
               <span class="category-name">${esc(cat)}</span>
-              ${currentUser
+              ${currentUser && currentUser.emailVerified
                 ? `<button class="new-thread-btn" onclick="showNewThread('${esc(cat)}')">+ New Thread</button>`
-                : `<span class="login-to-post" onclick="showModal()">Login to post</span>`}
+                : currentUser
+                  ? `<span class="login-to-post" style="cursor:default;color:#555;">Verify email to post</span>`
+                  : `<span class="login-to-post" onclick="showModal()">Login to post</span>`}
             </div>
             <div id="list-${esc(sid)}" class="threads-loading">Loading...</div>
           </div>`;
@@ -746,6 +750,7 @@
     const errEl  = document.getElementById(`nt-err-${sid}`);
     const btn    = document.getElementById(`nt-sub-${sid}`);
     errEl.textContent = "";
+    if (!currentUser?.emailVerified) { errEl.textContent = "Verify your email before posting."; return; }
     if (!title)                     { errEl.textContent = "Title is required.";     return; }
     if (!bodyEl.textContent.trim()) { errEl.textContent = "Post body is required."; return; }
     btn.disabled = true;
@@ -805,7 +810,7 @@
     const opProfile = await getUserProfile(t.authorId);
     const opSig     = opProfile?.signature || "";
 
-    const replySection = currentUser
+    const replySection = currentUser && currentUser.emailVerified
       ? `<div class="reply-form">
            <div class="fmt-wrap">
              <div contenteditable="true" class="fmt-editor" id="reply-body" data-placeholder="Write a reply..." onclick="onEditorClick(event)"></div>
@@ -816,9 +821,11 @@
              <button class="submit-btn" id="reply-submit" onclick="submitReply()">Post Reply</button>
            </div>
          </div>`
-      : `<div class="login-to-reply">
-           <span onclick="showModal()">Login or register</span> to post a reply.
-         </div>`;
+      : currentUser
+        ? `<div class="login-to-reply">Check your inbox and verify your email before posting.</div>`
+        : `<div class="login-to-reply">
+             <span onclick="showModal()">Login or register</span> to post a reply.
+           </div>`;
 
     appEl.innerHTML = `
       <div class="top-bar">${topBarHTML()}</div>
@@ -879,6 +886,7 @@
     const errEl  = document.getElementById("reply-err");
     const btn    = document.getElementById("reply-submit");
     errEl.textContent = "";
+    if (!currentUser?.emailVerified) { errEl.textContent = "Verify your email before posting."; return; }
     if (!bodyEl.textContent.trim()) { errEl.textContent = "Reply cannot be empty."; return; }
     btn.disabled = true;
     try {
