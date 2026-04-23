@@ -632,9 +632,15 @@
 
   function topBarHTML() {
     if (currentUser) {
-      return `<div class="top-bar-left" style="cursor:pointer;" onclick="viewProfile('${esc(currentUser.uid)}')">
+      const unverifiedBar = !currentUser.emailVerified
+        ? `<div style="width:100%;font-size:0.65rem;color:#888;letter-spacing:1px;font-weight:normal;padding:6px 0 0;">
+             Email not verified &mdash;
+             <span style="color:#1e90ff;cursor:pointer;font-weight:bold;" onclick="resendVerification()">resend verification email</span>
+           </div>` : "";
+      return `<div class="top-bar-left" style="cursor:pointer;flex-wrap:wrap;" onclick="viewProfile('${esc(currentUser.uid)}')">
                 <img class="top-bar-avatar" src="${esc(currentUserAvatar)}" alt="">
                 <span class="top-bar-user">${esc(currentUser.displayName || currentUser.email)}</span>
+                ${unverifiedBar}
               </div>
               <div class="top-bar-actions">
                 <button class="logout-btn" onclick="doLogout()">Logout</button>
@@ -1035,6 +1041,16 @@
   // ── Auth state ────────────────────────────────────────────────────────────
 
   window.doLogout = async function() { await signOut(auth); };
+
+  window.resendVerification = async function() {
+    if (!currentUser || currentUser.emailVerified) return;
+    try {
+      await sendEmailVerification(currentUser);
+      alert("Verification email sent! Check your inbox.");
+    } catch (ex) {
+      alert("Couldn't send email — try again in a minute.");
+    }
+  };
 
   onAuthStateChanged(auth, async user => {
     currentUser = user;
