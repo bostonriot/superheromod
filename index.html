@@ -522,9 +522,108 @@
     header h1 { font-size: 1.8rem; }
     .hero-table .td-desc { display: none; }
   }
+
+  /* ALARM CLOCK FONT */
+  @font-face {
+    font-family: 'AlarmClock';
+    src: url('alarm clock.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  /* LAUNCH COUNTDOWN OVERLAY */
+  #launch-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.995);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  #launch-overlay.hidden { display: none; }
+
+  #overlay-close {
+    position: fixed;
+    top: 22px;
+    right: 28px;
+    background: none;
+    border: none;
+    color: #cc0000;
+    font-size: 2.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    transition: color 0.15s, transform 0.15s;
+    z-index: 10001;
+  }
+  #overlay-close:hover {
+    color: #ff2222;
+    transform: scale(1.15);
+  }
+
+  #overlay-logo {
+    width: 220px;
+    height: auto;
+    filter: drop-shadow(0 0 24px rgba(200, 0, 0, 0.55));
+  }
+
+  #countdown-display {
+    font-family: 'AlarmClock', monospace;
+    color: #cc0000;
+    font-size: clamp(3.5rem, 12vw, 7.5rem);
+    letter-spacing: 0.06em;
+    text-shadow:
+      0 0 10px rgba(200, 0, 0, 0.8),
+      0 0 30px rgba(200, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    user-select: none;
+  }
+  .cd-sep {
+    margin: 0 4px;
+  }
+  #overlay-subtitle {
+    font-family: 'AlarmClock', monospace;
+    color: #cc0000;
+    font-size: clamp(1.2rem, 3.5vw, 2rem);
+    letter-spacing: 0.12em;
+    text-align: center;
+    line-height: 1.6;
+    text-shadow:
+      0 0 8px rgba(200, 0, 0, 0.7),
+      0 0 20px rgba(200, 0, 0, 0.3);
+    margin-top: -12px;
+  }
+  #overlay-sub-sh {
+    color: #1e90ff;
+    text-shadow:
+      0 0 8px rgba(30, 144, 255, 0.7),
+      0 0 20px rgba(30, 144, 255, 0.3);
+  }
+  #overlay-sub-mod {
+    color: #cc0000;
+    text-shadow:
+      0 0 8px rgba(200, 0, 0, 0.7),
+      0 0 20px rgba(200, 0, 0, 0.3);
+  }
 </style>
 </head>
 <body>
+
+<!-- LAUNCH COUNTDOWN OVERLAY -->
+<div id="launch-overlay">
+  <button id="overlay-close" title="Enter site">✕</button>
+  <img src="cstrikegangstaz.png" alt="OGz C-Strike Gangstaz" id="overlay-logo">
+  <div id="countdown-display">
+    <span id="cd-hours">000</span><span class="cd-sep"> : </span><span id="cd-mins">00</span><span class="cd-sep"> : </span><span id="cd-secs">00</span>
+  </div>
+  <div id="overlay-subtitle"><span id="overlay-sub-cs2">COUNTER-STRIKE 2</span><br><span id="overlay-sub-sh">SUPERHERO </span><span id="overlay-sub-mod">MOD</span></div>
+</div>
 
 <header>
   <h1>OGz C-Strike Gangstaz</h1>
@@ -850,6 +949,36 @@
       submitBtn.disabled = false;
     }
   });
+</script>
+
+<script>
+  // May 2 2026 11:00 PM EDT (UTC-4) = May 3 2026 03:00 UTC
+  var TARGET = new Date('2026-05-03T03:00:00Z').getTime();
+  var overlay = document.getElementById('launch-overlay');
+
+  if (sessionStorage.getItem('overlay_dismissed')) {
+    overlay.classList.add('hidden');
+  } else {
+    function updateCountdown() {
+      var now = Date.now();
+      var diff = Math.max(0, TARGET - now);
+      var totalSecs = Math.floor(diff / 1000);
+      var secs = totalSecs % 60;
+      var totalMins = Math.floor(totalSecs / 60);
+      var mins = totalMins % 60;
+      var hours = Math.floor(totalMins / 60);
+      document.getElementById('cd-hours').textContent = String(hours).padStart(3, '0');
+      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    document.getElementById('overlay-close').addEventListener('click', function() {
+      sessionStorage.setItem('overlay_dismissed', '1');
+      overlay.classList.add('hidden');
+    });
+  }
 </script>
 
 <audio id="bg-music" src="technosong.mp3" loop></audio>
