@@ -128,6 +128,12 @@
   .login-to-reply span { color: #1e90ff; cursor: pointer; font-weight: bold; }
   .login-to-reply span:hover { text-decoration: underline; }
 
+  /* DELETE / PROFILE */
+  .delete-post-btn { background: none; border: none; color: #2a2a2a; font-size: 0.85rem; cursor: pointer; padding: 0 0 0 8px; vertical-align: middle; transition: color 0.15s; }
+  .delete-post-btn:hover { color: #ff4444; }
+  .post-sig { font-size: 0.7rem; color: #3a3a3a; font-weight: normal; word-break: break-word; text-align: left; margin-top: 8px; border-top: 1px solid #1e1e1e; padding-top: 8px; line-height: 1.5; }
+  .profile-link:hover { text-decoration: underline; }
+
   .forums-logo { width: 200px; height: 200px; object-fit: contain; filter: drop-shadow(0 0 16px rgba(30,144,255,0.35)); transition: transform 0.2s, filter 0.2s; }
   .forums-logo:hover { transform: translateY(-3px); filter: drop-shadow(0 0 24px rgba(30,144,255,0.6)); }
 
@@ -202,6 +208,12 @@
   </div>
 </div>
 
+<div id="profile-modal" class="hidden">
+  <div class="modal-overlay" onclick="closeProfileModal(event)">
+    <div class="modal-box" id="profile-modal-inner"></div>
+  </div>
+</div>
+
 <footer>
   &copy; OGz C-Strike Gangstaz &nbsp;|&nbsp; CS2 Superhero Mod
 </footer>
@@ -209,7 +221,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-  import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, increment, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, collectionGroup, addDoc, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, increment, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCGpy67LqR4cosW2OM8lbLcCNT6ir74Lxk",
@@ -230,13 +242,15 @@
 
   const appEl = document.getElementById("app");
 
-  let currentUser       = null;
-  let currentUserAvatar = "ct.png";
-  let currentThread     = null;
-  let threadsCache      = {};
-  let unsubMap          = {};
-  let unsubPosts        = null;
-  let selectedAvatar    = "ct.png";
+  let currentUser          = null;
+  let currentUserAvatar    = "ct.png";
+  let currentUserSignature = "";
+  let currentThread        = null;
+  let threadsCache         = {};
+  let unsubMap             = {};
+  let unsubPosts           = null;
+  let selectedAvatar       = "ct.png";
+  let profileSelectedAvatar = "ct.png";
 
   // ── Utilities ─────────────────────────────────────────────────────────────
 
@@ -381,7 +395,7 @@
 
   function topBarHTML() {
     if (currentUser) {
-      return `<div class="top-bar-left">
+      return `<div class="top-bar-left" style="cursor:pointer;" onclick="viewProfile('${esc(currentUser.uid)}')">
                 <img class="top-bar-avatar" src="${esc(currentUserAvatar)}" alt="">
                 <span class="top-bar-user">${esc(currentUser.displayName || currentUser.email)}</span>
               </div>
@@ -503,16 +517,20 @@
     try {
       const ref = await addDoc(collection(db, "threads"), {
         title, body, category: cat,
-        authorId:     currentUser.uid,
-        authorName:   currentUser.displayName || currentUser.email,
-        authorAvatar: currentUserAvatar,
-        createdAt:    serverTimestamp(),
-        lastActivity: serverTimestamp(),
-        replyCount:   0
+        authorId:        currentUser.uid,
+        authorName:      currentUser.displayName || currentUser.email,
+        authorAvatar:    currentUserAvatar,
+        authorSignature: currentUserSignature,
+        createdAt:       serverTimestamp(),
+        lastActivity:    serverTimestamp(),
+        replyCount:      0
       });
       currentThread = { id: ref.id, title, body, category: cat,
+        authorId: currentUser.uid,
         authorName: currentUser.displayName || currentUser.email,
-        authorAvatar: currentUserAvatar, createdAt: null, replyCount: 0 };
+        authorAvatar: currentUserAvatar,
+        authorSignature: currentUserSignature,
+        createdAt: null, replyCount: 0 };
       render();
     } catch (ex) {
       errEl.textContent = "Failed to post. Try again.";
@@ -522,18 +540,26 @@
 
   // ── Thread view ───────────────────────────────────────────────────────────
 
-  function postHTML(authorName, authorAvatar, dateLabel, body, isOP) {
-    const isOwner = authorName === "LOOTENANT BIG POOPIE";
+  function postHTML(authorName, authorAvatar, dateLabel, body, isOP, authorId, postId, authorSignature) {
+    const isOwner  = authorName === "LOOTENANT BIG POOPIE";
+    const canDelete = currentUser && (currentUser.uid === authorId || currentUser.displayName === "LOOTENANT BIG POOPIE");
+    const deleteBtn = canDelete
+      ? (isOP
+          ? `<button class="delete-post-btn" onclick="deleteThread()" title="Delete Thread">&#128465;</button>`
+          : `<button class="delete-post-btn" onclick="deletePost('${esc(postId)}')" title="Delete Post">&#128465;</button>`)
+      : "";
+    const profileClick = authorId ? `onclick="viewProfile('${esc(authorId)}')" style="cursor:pointer;"` : "";
     return `
       <div class="post-item${isOP ? " op" : ""}">
         <div class="post-author-col">
-          <img class="post-avatar" src="${esc(authorAvatar)}" alt="${esc(authorName)}">
-          <span class="post-author-name">${esc(authorName)}</span>
+          <img class="post-avatar profile-link" src="${esc(authorAvatar)}" alt="${esc(authorName)}" ${profileClick}>
+          <span class="post-author-name profile-link" ${profileClick}>${esc(authorName)}</span>
           ${isOwner ? `<span style="font-size:0.55rem;letter-spacing:2px;color:#ff3333;text-transform:uppercase;">Owner</span>` : ""}
         </div>
         <div class="post-content-col">
-          <div class="post-date">${esc(dateLabel)}</div>
+          <div class="post-date">${esc(dateLabel)}${deleteBtn}</div>
           <div class="post-body">${sanitizeHTML(body)}</div>
+          ${authorSignature ? `<div class="post-sig">${esc(authorSignature)}</div>` : ""}
         </div>
       </div>`;
   }
@@ -564,7 +590,7 @@
         <div class="thread-view-title">${esc(t.title)}</div>
         <div class="thread-view-meta">in <b>${esc(t.category)}</b></div>
         <div id="posts-wrap">
-          ${postHTML(t.authorName || "Unknown", opAvatar, "Original Post", t.body || "", true)}
+          ${postHTML(t.authorName || "Unknown", opAvatar, "Original Post", t.body || "", true, t.authorId, null, t.authorSignature || "")}
           <div id="replies-wrap"></div>
         </div>
         ${replySection}
@@ -588,8 +614,14 @@
       el.innerHTML = snap.docs.map(d => {
         const p = d.data();
         const av = resolveAvatar(p.authorName, p.authorAvatar);
-        return postHTML(p.authorName || "Unknown", av, timeAgo(p.createdAt), p.body || "", false);
+        return postHTML(p.authorName || "Unknown", av, timeAgo(p.createdAt), p.body || "", false, p.authorId, d.id, p.authorSignature || "");
       }).join("");
+      // Auto-correct replyCount if it drifted (e.g. admin deleted a post from Firebase console)
+      const actual = snap.docs.length;
+      if (currentThread && actual !== currentThread.replyCount) {
+        updateDoc(doc(db, "threads", currentThread.id), { replyCount: actual }).catch(() => {});
+        currentThread.replyCount = actual;
+      }
     });
   }
 
@@ -604,10 +636,11 @@
     try {
       await addDoc(collection(db, "threads", currentThread.id, "posts"), {
         body,
-        authorId:     currentUser.uid,
-        authorName:   currentUser.displayName || currentUser.email,
-        authorAvatar: currentUserAvatar,
-        createdAt:    serverTimestamp()
+        authorId:        currentUser.uid,
+        authorName:      currentUser.displayName || currentUser.email,
+        authorAvatar:    currentUserAvatar,
+        authorSignature: currentUserSignature,
+        createdAt:       serverTimestamp()
       });
       await updateDoc(doc(db, "threads", currentThread.id), {
         replyCount:   increment(1),
@@ -620,6 +653,132 @@
     btn.disabled = false;
   };
 
+  // ── Profile modal ─────────────────────────────────────────────────────────
+
+  window.closeProfileModal      = function(e) { if (e.target === e.currentTarget) closeProfileModalDirect(); };
+  window.closeProfileModalDirect = function() { document.getElementById("profile-modal").classList.add("hidden"); };
+
+  window.selectProfileAvatar = function(file) {
+    profileSelectedAvatar = file;
+    document.getElementById("pav-ct")?.classList.toggle("selected", file === "ct.png");
+    document.getElementById("pav-t")?.classList.toggle("selected",  file === "t.png");
+  };
+
+  window.viewProfile = async function(uid) {
+    if (!uid) return;
+    const modal = document.getElementById("profile-modal");
+    const inner = document.getElementById("profile-modal-inner");
+    inner.innerHTML = `<div style="padding:20px;text-align:center;font-size:0.7rem;letter-spacing:2px;color:#333;text-transform:uppercase;">Loading...</div>`;
+    modal.classList.remove("hidden");
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (!snap.exists()) {
+        inner.innerHTML = `<button class="modal-close" onclick="closeProfileModalDirect()">&#10005;</button><div style="color:#555;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;padding:20px 0;">User not found.</div>`;
+        return;
+      }
+      const data     = snap.data();
+      const username = data.username || "Unknown";
+      const avatar   = resolveAvatar(username, data.avatar);
+      const sig      = data.signature || "";
+      const joined   = data.createdAt ? timeAgo(data.createdAt) : "Unknown";
+      const isOwn    = currentUser && currentUser.uid === uid;
+      const isOwner  = username === "LOOTENANT BIG POOPIE";
+
+      if (isOwn) {
+        profileSelectedAvatar = isOwner ? avatar : (data.avatar || "ct.png");
+        inner.innerHTML = `
+          <button class="modal-close" onclick="closeProfileModalDirect()">&#10005;</button>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:20px;clear:both;">
+            <img src="${esc(avatar)}" style="width:80px;height:80px;object-fit:contain;image-rendering:pixelated;">
+            <span style="font-size:0.9rem;color:#fff;letter-spacing:2px;text-transform:uppercase;">${esc(username)}</span>
+            ${isOwner ? `<span style="font-size:0.55rem;letter-spacing:2px;color:#ff3333;text-transform:uppercase;">Owner</span>` : ""}
+            <span style="font-size:0.65rem;color:#444;letter-spacing:1px;font-weight:normal;">Joined ${joined}</span>
+          </div>
+          <div style="border-top:1px solid #2a2a2a;padding-top:16px;display:flex;flex-direction:column;gap:10px;">
+            ${!isOwner ? `
+            <span style="font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:-4px;">Icon</span>
+            <div class="avatar-pick">
+              <div class="avatar-opt${profileSelectedAvatar === 'ct.png' ? ' selected' : ''}" id="pav-ct" onclick="selectProfileAvatar('ct.png')">
+                <img src="ct.png" alt="CT"><span>CT</span>
+              </div>
+              <div class="avatar-opt${profileSelectedAvatar === 't.png' ? ' selected' : ''}" id="pav-t" onclick="selectProfileAvatar('t.png')">
+                <img src="t.png" alt="T"><span>T</span>
+              </div>
+            </div>` : ""}
+            <span style="font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:-4px;">Signature</span>
+            <textarea id="profile-sig" class="form-input" style="min-height:70px;font-weight:normal;resize:vertical;" maxlength="200" placeholder="Your forum signature (optional)">${esc(sig)}</textarea>
+            <div class="auth-error" id="profile-save-err"></div>
+            <button class="auth-submit" onclick="saveProfile('${esc(uid)}')">Save Changes</button>
+          </div>`;
+      } else {
+        inner.innerHTML = `
+          <button class="modal-close" onclick="closeProfileModalDirect()">&#10005;</button>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;clear:both;">
+            <img src="${esc(avatar)}" style="width:80px;height:80px;object-fit:contain;image-rendering:pixelated;">
+            <span style="font-size:0.9rem;color:#fff;letter-spacing:2px;text-transform:uppercase;">${esc(username)}</span>
+            ${isOwner ? `<span style="font-size:0.55rem;letter-spacing:2px;color:#ff3333;text-transform:uppercase;">Owner</span>` : ""}
+            <span style="font-size:0.65rem;color:#444;letter-spacing:1px;font-weight:normal;">Joined ${joined}</span>
+            ${sig ? `<div style="margin-top:12px;border-top:1px solid #2a2a2a;padding-top:12px;width:100%;text-align:center;font-size:0.8rem;color:#666;font-weight:normal;font-style:italic;word-break:break-word;">${esc(sig)}</div>` : ""}
+          </div>`;
+      }
+    } catch (ex) {
+      inner.innerHTML = `<button class="modal-close" onclick="closeProfileModalDirect()">&#10005;</button><div style="color:#ff4444;font-size:0.75rem;padding:20px 0;">Failed to load profile.</div>`;
+    }
+  };
+
+  window.saveProfile = async function(uid) {
+    const errEl = document.getElementById("profile-save-err");
+    errEl.textContent = "";
+    const btn = document.querySelector("#profile-modal-inner .auth-submit");
+    if (btn) btn.disabled = true;
+    const sig       = document.getElementById("profile-sig").value.trim();
+    const username  = currentUser.displayName;
+    const newAvatar = AVATAR_OVERRIDE[username] ? resolveAvatar(username, null) : profileSelectedAvatar;
+    try {
+      await updateDoc(doc(db, "users", uid), { avatar: newAvatar, signature: sig });
+
+      // Retroactively update signature on all existing threads and replies by this user
+      const [threadSnap, postSnap] = await Promise.all([
+        getDocs(query(collection(db, "threads"), where("authorId", "==", uid))),
+        getDocs(query(collectionGroup(db, "posts"), where("authorId", "==", uid)))
+      ]);
+      await Promise.all([
+        ...threadSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig })),
+        ...postSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig }))
+      ]);
+
+      currentUserAvatar    = resolveAvatar(username, newAvatar);
+      currentUserSignature = sig;
+      closeProfileModalDirect();
+      render();
+    } catch (ex) {
+      errEl.textContent = "Failed to save. Try again.";
+      if (btn) btn.disabled = false;
+    }
+  };
+
+  // ── Delete ─────────────────────────────────────────────────────────────────
+
+  window.deletePost = async function(postId) {
+    if (!confirm("Delete this post?")) return;
+    try {
+      await deleteDoc(doc(db, "threads", currentThread.id, "posts", postId));
+      await updateDoc(doc(db, "threads", currentThread.id), {
+        replyCount:   increment(-1),
+        lastActivity: serverTimestamp()
+      });
+    } catch (ex) { alert("Failed to delete post."); }
+  };
+
+  window.deleteThread = async function() {
+    if (!confirm("Delete this entire thread? This cannot be undone.")) return;
+    try {
+      await deleteDoc(doc(db, "threads", currentThread.id));
+      currentThread = null;
+      render();
+    } catch (ex) { alert("Failed to delete thread."); }
+  };
+
   // ── Auth state ────────────────────────────────────────────────────────────
 
   window.doLogout = async function() { await signOut(auth); };
@@ -630,9 +789,16 @@
     if (user) {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        currentUserAvatar = resolveAvatar(user.displayName, snap.exists() ? snap.data().avatar : null);
+        if (snap.exists()) {
+          currentUserAvatar    = resolveAvatar(user.displayName, snap.data().avatar);
+          currentUserSignature = snap.data().signature || "";
+        } else {
+          currentUserAvatar    = resolveAvatar(user.displayName, null);
+          currentUserSignature = "";
+        }
       } catch (_) {
-        currentUserAvatar = resolveAvatar(user.displayName, null);
+        currentUserAvatar    = resolveAvatar(user.displayName, null);
+        currentUserSignature = "";
       }
     }
     render();
