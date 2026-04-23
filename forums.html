@@ -242,15 +242,16 @@
 
   const appEl = document.getElementById("app");
 
-  let currentUser          = null;
-  let currentUserAvatar    = "ct.png";
-  let currentUserSignature = "";
-  let currentThread        = null;
-  let threadsCache         = {};
-  let unsubMap             = {};
-  let unsubPosts           = null;
-  let selectedAvatar       = "ct.png";
+  let currentUser           = null;
+  let currentUserAvatar     = "ct.png";
+  let currentUserSignature  = "";
+  let currentThread         = null;
+  let threadsCache          = {};
+  let unsubMap              = {};
+  let unsubPosts            = null;
+  let selectedAvatar        = "ct.png";
   let profileSelectedAvatar = "ct.png";
+  const profileCache        = {};
 
   // ── Utilities ─────────────────────────────────────────────────────────────
 
@@ -272,6 +273,16 @@
   function resolveAvatar(username, saved) {
     if (AVATAR_OVERRIDE[username]) return AVATAR_OVERRIDE[username];
     return saved || "ct.png";
+  }
+
+  async function getUserProfile(uid) {
+    if (!uid) return null;
+    if (uid in profileCache) return profileCache[uid];
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      profileCache[uid] = snap.exists() ? snap.data() : null;
+    } catch (_) { profileCache[uid] = null; }
+    return profileCache[uid];
   }
 
   function authErrMsg(code) {
@@ -564,9 +575,11 @@
       </div>`;
   }
 
-  function renderThread() {
+  async function renderThread() {
     const t = currentThread;
-    const opAvatar = resolveAvatar(t.authorName, t.authorAvatar);
+    const opAvatar  = resolveAvatar(t.authorName, t.authorAvatar);
+    const opProfile = await getUserProfile(t.authorId);
+    const opSig     = opProfile?.signature || "";
 
     const replySection = currentUser
       ? `<div class="reply-form">
@@ -590,7 +603,7 @@
         <div class="thread-view-title">${esc(t.title)}</div>
         <div class="thread-view-meta">in <b>${esc(t.category)}</b></div>
         <div id="posts-wrap">
-          ${postHTML(t.authorName || "Unknown", opAvatar, "Original Post", t.body || "", true, t.authorId, null, t.authorSignature || "")}
+          ${postHTML(t.authorName || "Unknown", opAvatar, "Original Post", t.body || "", true, t.authorId, null, opSig)}
           <div id="replies-wrap"></div>
         </div>
         ${replySection}
@@ -608,14 +621,25 @@
       collection(db, "threads", currentThread.id, "posts"),
       orderBy("createdAt", "asc")
     );
-    unsubPosts = onSnapshot(q, snap => {
+    unsubPosts = onSnapshot(q, async snap => {
       const el = document.getElementById("replies-wrap");
       if (!el) return;
-      el.innerHTML = snap.docs.map(d => {
-        const p = d.data();
+
+      // Fetch profiles for all unique authors (cache prevents duplicate requests)
+      const authorIds = [...new Set(snap.docs.map(d => d.data().authorId).filter(Boolean))];
+      await Promise.all(authorIds.map(getUserProfile));
+
+      // Re-check element still exists after async fetches
+      const el2 = document.getElementById("replies-wrap");
+      if (!el2) return;
+
+      el2.innerHTML = snap.docs.map(d => {
+        const p  = d.data();
         const av = resolveAvatar(p.authorName, p.authorAvatar);
-        return postHTML(p.authorName || "Unknown", av, timeAgo(p.createdAt), p.body || "", false, p.authorId, d.id, p.authorSignature || "");
+        const sig = profileCache[p.authorId]?.signature || "";
+        return postHTML(p.authorName || "Unknown", av, timeAgo(p.createdAt), p.body || "", false, p.authorId, d.id, sig);
       }).join("");
+
       // Auto-correct replyCount if it drifted (e.g. admin deleted a post from Firebase console)
       const actual = snap.docs.length;
       if (currentThread && actual !== currentThread.replyCount) {
@@ -745,25 +769,13 @@
       return;
     }
 
-    // Profile saved — update local state and close immediately
+    // Update in-memory cache so the new signature shows immediately without a page reload
+    profileCache[uid] = { ...(profileCache[uid] || {}), avatar: newAvatar, signature: sig };
+
     currentUserAvatar    = resolveAvatar(username, newAvatar);
     currentUserSignature = sig;
     closeProfileModalDirect();
     render();
-
-    // Backfill signature on existing posts in the background (best-effort)
-    try {
-      const [threadSnap, postSnap] = await Promise.all([
-        getDocs(query(collection(db, "threads"), where("authorId", "==", uid))),
-        getDocs(query(collectionGroup(db, "posts"), where("authorId", "==", uid)))
-      ]);
-      await Promise.all([
-        ...threadSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig })),
-        ...postSnap.docs.map(d => updateDoc(d.ref, { authorSignature: sig }))
-      ]);
-    } catch (ex) {
-      console.error("saveProfile backfill:", ex);
-    }
   };
 
   // ── Delete ─────────────────────────────────────────────────────────────────
