@@ -476,6 +476,48 @@
     box-shadow: none;
   }
 
+  /* VISIT COUNTER */
+  .visit-counter-wrap {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    margin-bottom: -16px;
+    align-self: center;
+  }
+  .visit-counter-wrap img.counter-label {
+    display: block;
+    image-rendering: pixelated;
+    width: auto;
+    height: auto;
+  }
+  .counter-digits {
+    position: absolute;
+    display: flex;
+    gap: 1px;
+    align-items: center;
+    justify-content: center;
+    /* Positioned over the dark display box inside counter.png */
+    top: -9px;
+    left: 141px;
+    right: 56px;
+    bottom: 26px;
+    gap: 7px;
+  }
+  .counter-digits img {
+    height: 32px;
+    width: auto;
+    display: block;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 4px rgba(30,144,255,0.85)) drop-shadow(0 0 8px rgba(30,144,255,0.4));
+  }
+  .visit-counter-wrap img.counter-label {
+    filter: drop-shadow(0 0 16px rgba(30,144,255,0.35));
+    transition: filter 0.2s;
+  }
+  .visit-counter-wrap:hover img.counter-label {
+    filter: drop-shadow(0 0 10px rgba(30,144,255,0.7)) drop-shadow(0 0 20px rgba(30,144,255,0.35));
+  }
+
   @media (max-width: 600px) {
     header h1 { font-size: 1.8rem; }
     .hero-table .td-desc { display: none; }
@@ -512,7 +554,17 @@
     <p>What you loved in CS 1.6... reborn in Counter-Strike 2.</p>
   </div>
 
-<!-- SERVER INFO -->
+<!-- PAGE COUNTER -->
+  <div style="display:flex;justify-content:center;">
+    <div class="visit-counter-wrap">
+      <img src="counter.png" alt="Visitors" class="counter-label">
+      <div class="counter-digits" id="visit-counter">
+        <img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0"><img src="0.png" alt="0">
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVER INFO -->
   <section id="info">
     <div class="section-title">Server Info</div>
     <div class="info-grid">
@@ -682,7 +734,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+  import { getDatabase, ref, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCGpy67LqR4cosW2OM8lbLcCNT6ir74Lxk",
@@ -697,6 +749,16 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const messagesRef = ref(db, "messages");
+
+  // Page visit counter
+  function renderCounter(count) {
+    const padded = String(Math.min(count, 99999999)).padStart(8, '0');
+    document.getElementById('visit-counter').innerHTML =
+      padded.split('').map(d => `<img src="${d}.png" alt="${d}">`).join('');
+  }
+  runTransaction(ref(db, 'pageViews'), (n) => (n || 0) + 1)
+    .then(result => { if (result.committed) renderCounter(result.snapshot.val()); })
+    .catch(() => {});
 
   const list = document.getElementById("gb-list");
   const empty = document.getElementById("gb-empty");
