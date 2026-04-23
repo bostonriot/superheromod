@@ -152,6 +152,7 @@
   .delete-post-btn { background: none; border: none; color: #2a2a2a; font-size: 0.85rem; cursor: pointer; padding: 0 0 0 8px; vertical-align: middle; transition: color 0.15s; }
   .delete-post-btn:hover { color: #ff4444; }
   .post-sig { font-size: 0.7rem; color: #3a3a3a; font-weight: normal; word-break: break-word; text-align: left; margin-top: 8px; border-top: 1px solid #1e1e1e; padding-top: 8px; line-height: 1.5; }
+  .post-sig .sig-img { max-height: 80px; max-width: 100%; width: auto; display: block; margin-top: 4px; }
   .profile-link:hover { text-decoration: underline; }
 
   .forums-logo { width: 200px; height: 200px; object-fit: contain; filter: drop-shadow(0 0 16px rgba(30,144,255,0.35)); transition: transform 0.2s, filter 0.2s; }
@@ -786,6 +787,20 @@
 
   // ── Thread view ───────────────────────────────────────────────────────────
 
+  function renderSig(sig) {
+    if (!sig) return '';
+    const imgRegex = /\[img\](https:\/\/[^\[\]\s]{1,500})\[\/img\]/gi;
+    const parts = [];
+    let last = 0, match;
+    while ((match = imgRegex.exec(sig)) !== null) {
+      if (match.index > last) parts.push(esc(sig.slice(last, match.index)));
+      parts.push(`<img src="${esc(match[1])}" alt="" class="sig-img">`);
+      last = match.index + match[0].length;
+    }
+    if (last < sig.length) parts.push(esc(sig.slice(last)));
+    return parts.join('');
+  }
+
   function postHTML(authorName, authorAvatar, dateLabel, body, isOP, authorId, postId, authorSignature) {
     const isOwner  = authorName === "LOOTENANT BIG POOPIE";
     const canDelete = currentUser && (currentUser.uid === authorId || currentUser.displayName === "LOOTENANT BIG POOPIE");
@@ -805,7 +820,7 @@
         <div class="post-content-col">
           <div class="post-date">${esc(dateLabel)}${deleteBtn}</div>
           <div class="post-body">${sanitizeHTML(body)}</div>
-          ${authorSignature ? `<div class="post-sig">${esc(authorSignature)}</div>` : ""}
+          ${authorSignature ? `<div class="post-sig">${renderSig(authorSignature)}</div>` : ""}
         </div>
       </div>`;
   }
