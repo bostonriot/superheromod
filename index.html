@@ -671,7 +671,7 @@
     <div class="info-grid">
       <div class="info-card">
         <div class="label">Server IP</div>
-        <div class="value">coming soon</div>
+        <div class="value"><a href="steam://connect/38.59.27.194:27015">Click to Connect</a></div>
       </div>
       <div class="info-card">
         <div class="label">Discord</div>
@@ -989,6 +989,8 @@
   var music = document.getElementById('bg-music');
   var btn = document.getElementById('music-btn');
   var started = false;
+
+  music.volume = 0.4;
 
   function startMusic() {
     music.play();
