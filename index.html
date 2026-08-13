@@ -134,6 +134,17 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
   }
+
+  /* LIVE STATUS BANNER (GameTracker) */
+  .gt-banner {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .gt-banner iframe {
+    display: block;
+    border: 0;
+  }
   .info-card {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -647,6 +658,13 @@
         <div class="label">Help</div>
         <div class="value">Type /help in-game</div>
       </div>
+    </div>
+
+    <div class="gt-banner">
+      <iframe
+        src="https://cache.gametracker.com/components/html0/?host=121.127.41.37:25601&amp;bgColor=373e28&amp;fontColor=d2e1b5&amp;titleBgColor=2e3225&amp;titleColor=ffffff&amp;borderColor=3e4433&amp;linkColor=889c63&amp;borderLinkColor=828e6b&amp;showMap=1&amp;currentPlayersHeight=100&amp;showCurrPlayers=1&amp;showTopPlayers=0&amp;showBlogs=0&amp;width=200"
+        title="Live server status from GameTracker"
+        width="200" height="412" scrolling="no" loading="lazy"></iframe>
     </div>
   </section>
 
